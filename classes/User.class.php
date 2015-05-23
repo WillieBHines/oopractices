@@ -8,11 +8,19 @@ class User extends Model {
 	// else this will be an empty object
 	function __construct($uid = null, $keycode = null) {
 		parent::__construct(); // sets DB object
-		$this->key = new Key(); // this will set a key from REQUEST or SESSION
+		$this->key = new Key($keycode); // this will set a key from our argument (if it has a value), or REQUEST or SESSION, in that order
 		if ($this->key->keycode) { // did we get a key, then ignore user id
 			$this->setByKey($this->key);
 		} elseif ($uid) { // no key, do we have a user id?
 			$this->setById($uid);
+		}
+	}
+	
+	public function logged_in() {
+		if ($this->cols['id'] && $this->key->keycode) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 		
@@ -36,6 +44,15 @@ class User extends Model {
 		}
 		return $this;
 	
+	}
+	
+	public function get_login_form() {
+		$f = new Form();
+		$f->text('email', null, 0, 'your email address', null, 'email');
+		$f->hidden('ac', 'link');
+		$f->submit('log in');
+		return $f->get_form('inline');
+			
 	}
 			
 }	

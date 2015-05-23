@@ -24,8 +24,8 @@ class StatusChangeLog extends Model {
 		}
 		
 		$sql = sprintf("insert into status_change_log (workshop_id, user_id, status_id, happened) VALUES (%u, %u, %u, '%s')",
-		$this->mres ($this->workshop->getId()),
-		$this->mres ($this->user->getId()),
+		$this->mres ($this->workshop->cols['id']),
+		$this->mres ($this->user->cols['id']),
 		$this->mres ($status_id),
 		date('Y-m-d H:i:s', time()));
 		$this->query($sql) or $this->db_error();
@@ -38,7 +38,7 @@ class StatusChangeLog extends Model {
 		
 		$sql = "select s.*, u.email, st.status_name, wk.title, wk.start, wk.end from status_change_log s, users u, statuses st, workshops wk where";
 		if ($wk) { 
-			$sql .= " workshop_id = ".$this->mres($wk->getId())." and "; 
+			$sql .= " workshop_id = ".$this->mres($wk->cols['id'])." and "; 
 		}
 		$sql .= " s.workshop_id = wk.id and s.user_id = u.id and s.status_id = st.id order by happened desc";
 

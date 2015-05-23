@@ -18,13 +18,6 @@ class Model extends WBHObject {
 	}
 
 	// data methods
-	public function getId() {
-		if (isset($this->cols['id'])) {
-			return $this->cols['id'];
-		}
-		return false;
-	}
-		
 	public function get_everything() {
 		$sql = "select * from {$this->tableName} order by id";
 		$rows = $this->query($sql) or $this->db_error();

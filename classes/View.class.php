@@ -3,19 +3,18 @@ class View extends WBHObject
 {
 
 	public $title = 'will hines practices';
-	public $header = 'header';
-	public $footer = 'footer';
-	public $snippetDir = 'views';
-	public $body;
 	public $data;
-		
-	public function renderBody($body = null) {
-		if ($body) {
-			$this->body = $body;
-		}		
-		$data = $this->getData();		
+	private $header = 'header';
+	private $footer = 'footer';
+	private $snippetDir = 'views';
+	private $common_vars_page = 'common_variables'; // declaring common variables that most templates will need
+
+	public function renderPage($page = null, $data = null) {
+		$this->data = $data; // take the data that's passed in
+		$data = $this->updateData(); // add some things to it
+		include $this->getPageStr($this->common_vars_page);
 		include $this->getPageStr($this->header);
-		echo $this->body;
+		include $this->getPageStr($page);
 		include $this->getPageStr($this->footer);
 	}
 
@@ -23,7 +22,8 @@ class View extends WBHObject
 		return $this->snippetDir.'/'.$pagename.'.php';
 	}
 	
-	public function getData() {
+	// just add to data
+	public function updateData() {
 		$this->data['error'] = $this->error;
 		$this->data['message'] = $this->message;
 		$this->data['sc'] = $_SERVER['SCRIPT_NAME'];

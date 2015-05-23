@@ -12,9 +12,14 @@ class Flow extends WBHOBject {
 	public function setWhiteList($whiteList) {
 		$this->whiteList = $whiteList;
 		foreach ($this->whiteList as $va) {
-			$this->params[$va] = isset($_REQUEST[$va]) ? $_REQUEST[$va] : '';
+			$this->get($va);
 		}
 	}
+
+	public function get($va) {
+		$this->params[$va] = isset($_REQUEST[$va]) ? $_REQUEST[$va] : '';
+	}
+
 
 }	
 	

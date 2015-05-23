@@ -19,6 +19,8 @@ class Workshop extends Model {
 			$this->set_registration_totals(); // figure enrolled, waiting, dropped, invited
 			$this->set_type(); // past? sold out? open?
 			$this->check_last_minuteness(); // note who is registered while it's sold out
+			
+			$this->check_waiting(); // make sure waiting list has been tended to
 			return $this;
 		}
 		$this->setError("couldn't find workshop in DB");
@@ -71,18 +73,18 @@ class Workshop extends Model {
 			// have we never checked if it's sold out
 			if ($this->cols['sold_out_late'] == -1) {
 				if ($this->cols['type'] == 'soldout') {
-					$sql = 'update workshops set sold_out_late = 1 where id = '.$this->db->mres($this->getId());
+					$sql = 'update workshops set sold_out_late = 1 where id = '.$this->db->mres($this->cols['id']);
 					$this->query( $sql) or $this->db_error();
 					$this->cols['sold_out_late'] = 1;
 				
 					// note which registrations existed while things were sold out late
 					$r = new Registration();
-					$r->registered_while_sold_out($this)
+					$r->registered_while_sold_out($this);
 				
 				} else {
 					
 					// note that workshop is NOT sold out late
-					$sql = 'update workshops set sold_out_late = 0 where id = '.$this->db->mres($this->getId());
+					$sql = 'update workshops set sold_out_late = 0 where id = '.$this->db->mres($this->cols['id']);
 					$this->query( $sql) or $this->db_error();
 					$this->cols['sold_out_late'] = 0;
 				}
@@ -92,9 +94,7 @@ class Workshop extends Model {
 	}
 
 
-	public function check_waiting() {
-		$this->setById($this->getId()); // make sure stuff is up to date
-		
+	public function check_waiting() {		
 		if ($this->cols['type'] == 'past') {
 			return 'Workshop is in the past';
 		}
@@ -105,7 +105,7 @@ class Workshop extends Model {
 			// invite next person
 			$r = new Registration();
 			$r = $r->invite_next_waiting($this);
-			$this->setById($this->getId()); // refresh this object so we get new totals
+			$this->setById($this->cols['id']); // refresh this object so we get new totals
 		}
 		if ($r->message) { return $r->message; }
 		return "No invites sent.";

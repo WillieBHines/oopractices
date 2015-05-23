@@ -2,13 +2,30 @@
 include 'common.php';	
 
 // might be able to pull some of these out into a Form object
-$flow->whiteList = array('ac', 'wid', 'uid', 'email', 'v', 'key', 'message', 'phone', 'carrier_id', 'send_text', 'newemail');
+$flow->whiteList = array('ac', 'wid', 'uid', 'v');
+
+if ($flow->params['wid']) {
+	$flow->params['v'] = 'view';
+}
 	
-$body = 'hello';	
+// view
+switch ($flow->params['v']) {
+	
+	case 'view':
+		$r->set_registration($wk, $u);
+		$template = 'view_workshop';
+		break;
+	
+	
+	default:
+		$template = 'home';	
+	
+}
 
-
-
-$view->renderBody($body);
+$data['workshop'] = $wk;
+$data['user'] = $u;
+$data['registration'] = $r;
+$view->renderPage($template, $data);
 
 ?>
 
