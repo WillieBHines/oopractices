@@ -6,7 +6,7 @@
 */
 class Carriers extends Model {
 	
-	protected $tableName = 'carriers';
+	protected $table_name = 'carriers';
 	public static $carriers;
 	
 	function __construct() {

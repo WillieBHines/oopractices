@@ -15,7 +15,29 @@ switch ($flow->params['ac']) {
 		$message = 'You are logged out!';
 		break;
 	
+	case 'textup':
+		$u->save( $u->get_text_preferences_form()->get_values() );
+		$flow->params['v'] = 'text';
+		break;
+		
+	case 'reset':
+		if ($u->logged_in()) {
+			$u->reset_current_key();
+			$message = 'I made a new key, sent it to you in an email and then logged you out.';
+		}
+		break;
+
+	case 'link':
+		$params = $u->get_login_form()->get_values();
+		if ($u->send_login_email($params['email'])) { // this will make a new user if we need it
+			$message = "Thanks! I've sent a link to your {$u->getCol('email')}. Click it! (check your spam folder).";
+ 		} else {
+			$error = $u->error;
+		}
+		break;	
+	
 }	
+
 // view
 switch ($flow->params['v']) {
 	
@@ -24,9 +46,12 @@ switch ($flow->params['v']) {
 		$template = 'view_workshop';
 		break;
 		
-		case 'text':
+	case 'text':
 		$template = 'text_preferences';
+		break;
 		
+	case 'email':
+		$template = 'change_email';
 		break;
 	
 	case 'faq':

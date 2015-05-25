@@ -14,6 +14,10 @@ define('DROPPED', $statuses->find_status_id('dropped'));
 define('INVITED', $statuses->find_status_id('invited'));
 define('LATE_HOURS', 12);
 define('DEBUG_MODE', false);
+define('URL', "http://{$_SERVER['HTTP_HOST']}/oopractices/");
+define('WEBMASTER', "will@willhines.net");
+
+
 
 // page content and flow
 $view = new View(); // will use on every page	

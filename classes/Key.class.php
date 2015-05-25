@@ -11,7 +11,22 @@ class Key extends WBHObject {
 			$_SESSION['s_key'] = $this->keycode = $_REQUEST['key'];
 		} elseif (isset($_SESSION['s_key']) and $_SESSION['s_key']) {
 			$this->keycode = $_SESSION['s_key'];
-		}	
+		} elseif (isset($_COOKIE['c_key'])) {
+			$this->keycode = $_SESSION['s_key'] = $_COOKIE['c_key'];
+		}
+		
+		if ($this->keycode) {
+			setcookie("c_key", $this->keycode, time()+(3600*24*7));  /* expire in 1 week */
+		}
+		
+	}
+	
+	public function make_new_keycode() {
+		return substr(md5(uniqid(mt_rand(), true)), 0, 16);
+	}
+	
+	function __destruct() {
+		unset($_SESSION['s_key']);
 	}
 	
 }

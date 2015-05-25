@@ -6,7 +6,7 @@
 */
 class Statuses extends Model {
 	
-	protected $tableName = 'statuses';
+	protected $table_name = 'statuses';
 	protected $valueCol = 'id';
 	protected $nameCol = 'status_name';
 	public static $statuses;

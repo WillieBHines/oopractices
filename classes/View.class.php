@@ -18,6 +18,16 @@ class View extends WBHObject
 		include $this->getPageStr($this->footer);
 	}
 
+			
+	public function renderSnippet($bargle, $data=null) {
+	    if (is_array($data) && !empty($data)) {
+	        extract($data);
+	    }
+	    ob_start();
+		include $this->getPageStr($bargle);
+	    return ob_get_clean();
+	}
+
 	private function getPageStr($pagename) {
 		return $this->snippetDir.'/'.$pagename.'.php';
 	}
