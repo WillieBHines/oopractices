@@ -1,6 +1,5 @@
 <?php
 session_start(); // store key in $_SESSION
-	
 // autoload classes
 function my_autoloader($class) {
     include 'classes/' . $class . '.class.php';

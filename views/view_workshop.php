@@ -3,12 +3,11 @@
 * view a workshop info
 */
 
-
 // set the action ($point) for the user pending enrollment, if workshop is past, if user is logged in...
 if ($wk->cols['type'] == 'past') {
 	$point = "This workshop is IN THE PAST.";
-} elseif ($e->cols['status_id']) {
-	switch ($u->logged_in() && $e->cols['status_id']) {
+} elseif ($r->cols['status_id']) {
+	switch ($u->logged_in() && $r->cols['status_id']) {
 		case ENROLLED:
 			$point = "You are ENROLLED in this practice. Would you like to <a class='btn btn-default' href='$sc?ac=drop&wid={$wid}&uid={$uid}&key={$key}'>drop</a> it?";
 			break;
@@ -22,11 +21,11 @@ if ($wk->cols['type'] == 'past') {
 			$point = "You have dropped out of this practice. Would you like to <a class='btn btn-default'  href='$sc?ac=enroll&wk={$wid}'>re-enroll</a>?";
 			break;
 		default:
-			$point = "You are a status id of '{$e['status_id']}' (I don't know what that is) for this practice:";
+			$point = "You are a status id of '{$r->cols['status_id']}' (I don't know what that is) for this practice:";
 			break;
 	}
 } elseif ($u->logged_in()) {
-	if ($wk->cols['type'] == 'sold_out') {
+	if ($wk->cols['type'] == 'soldout') {
 		$point = "This workshop is sold out. Would you like to <a class='btn btn-default'  href='$sc?ac=enroll&wk={$wid}'>join the wait list</a>?";
 	} else {
 		$point = "This workshop has open spots. Would you like to <a class='btn btn-default'  href='$sc?ac=enroll&wk={$wid}'>enroll</a> in it?";

@@ -51,8 +51,44 @@ class User extends Model {
 		$f->text('email', null, 0, 'your email address', null, 'email');
 		$f->hidden('ac', 'link');
 		$f->submit('log in');
-		return $f->get_form('inline');
-			
+		return $f;			
+	}
+	
+	
+	
+	public function get_text_preferences_form() {
+		$c = new Carriers();
+		$f = new Form();
+		$f->hidden('uid', $this->getCol('id'));
+		$f->hidden('ac', 'updateu');
+		$f->hidden('v', 'text');
+		$f->checkbox('send_text', 1, 'Send text updates?', $this->getCol('send_text'));
+		$f->drop('carrier_id', $c->get_carriers_dropdown(),  $this->getCol('carrier_id'), 'phone network');
+		$f->text('phone', $this->getCol('phone'), 'phone number', null, '(just 10 numbers - no dashes)', 'numbers');
+		$f->submit('Update Text Preferences');
+		
+		if (!$f->error && ($f->params['send_text'] == 1 && !$f->params['carrier_id'])) {
+			$f->setError("If you want to get texts, you must pick a phone network.");
+		}
+		if (!$f->error && ($f->params['send_text'] == 1 && !$f->params['phone'])) {
+			$f->setError("If you want to get texts, you must set a phone number.");
+		}
+		
+		return $f;			
+		
+	}
+
+	public function get_transcript() {
+		$r = new Registration();
+		return $r->get_transcript_for_user($this);
+		
+	}
+
+	public function log_out() {
+		unset($_SESSION['s_key']);
+		$this->key = new Key();
+		$this->cols = array();
+		return $this;
 	}
 			
 }	

@@ -20,6 +20,15 @@ class Carriers extends Model {
 		}
 		return Carriers::$carriers;
 	}
+	
+	public function get_carriers_dropdown() {
+		$c = $this->get_carriers();
+		$drop = array();
+		foreach ($c as $id => $row) {
+			$drop[$id] = $row['network'];
+		}
+		return $drop;
+	}
 				
 }	
 ?>

@@ -26,7 +26,7 @@ class Statuses extends Model {
 	
 	public function find_status_id($status_name) {
 		foreach (Statuses::$statuses as $val => $sname) {
-			if ($status_name = $sname) {
+			if ($status_name == $sname) {
 				return $val;
 			}
 		}

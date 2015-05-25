@@ -2,51 +2,65 @@
 class Form extends WBHObject {
 
 	public $output;
+	public $params;
+	private $element_error;
+	private $submitted_id = 'submitted';
 	
 	function __construct() {
 		$this->output = null;
 	}
 	
 	public function get_form($option = null) {
-		$xtra_class = '';
-		if ($option == 'inline') {
-			$xtra_class = 'form-inline';
+		$this->hidden($this->submitted_id, '1');	// so we can know if form was submitted	
+		$xtra_class = ($option == 'inline') ? 'form-inline' : '';
+
+		$body = '';
+		if ($this->is_submitted() && $this->error) { // form was submitted we can check for errors
+			$body .= "<div class='alert alert-danger'>{$this->error}</div>\n";
 		}
-		
-		$body = "<form class='$xtra_class' action='{$_SERVER['SCRIPT_NAME']}' method='post'>\n";
+		$body .= "<form class='$xtra_class' action='{$_SERVER['SCRIPT_NAME']}' method='post'>\n";
 		$body .= $this->output;
 		$body .= "</form>\n";
 		
 		return $body;
 	}
 	
+	// after the form has checked for all the data being passed in
+	public function get_values() {
+		return $this->params();
+	}
+	
 	private function check_value($id, $default = null, $validation = null) {
 	
-		$this->error = null; // clear out errors
+		$this->element_error = null; // clear out errors
 		
 		$value = isset($_REQUEST[$id]) ? $_REQUEST[$id] : $default;
+		$this->params[$id] = $value; // for a model to save
 		
 		if ($value && $validation == 'email') {
 			if (!$this->validate_email($value)) {
-				$this->setError("not a valid email");
+				$this->element_error = "not a valid email";
 			}
 		} elseif ($value && is_numeric($validation)) {
 			if (strlen($value) > $validation) {
-				$this->setError("this field can not be longer than $validation characters");
+				$this->element_error = "this field can not be longer than $validation characters";
 			}
 		} elseif ($validation == 'required') {
 			if (!$value) {
-				$this->setError('this field is required');
+				$this->element_error = "this field is required";
 			}
 		} elseif ($value && $validation == 'numbers') {
 			if (!preg_match('/^\d+$/', $value)) {
-				$this->setError('can use only numbers on this field');
+				$this->element_error = "can use only numbers on this field";
 			}
 		} elseif ($value && $validation == 'letters') {
 			if (!preg_match('/^[:alpha:]+$/', $value)) {
-				$this->setError('can use only letters on this field');
+				$this->element_error = "can use only letters on this field";
 			}
 			
+		}
+		if ($this->element_error) {
+			$this->setError("There's an error in the form below."); // form fails if an element fails
 		}
 		return $value;
 		
@@ -57,9 +71,9 @@ class Form extends WBHObject {
 		$value = $this->check_value($id, $value, $validation);
 		$l = $this->label($label, $id);	
 		
-		$this->add_to_output($this->form_group_start($this->error));		
+		$this->add_to_output($this->form_group_start($this->element_error));		
 		$this->add_to_output("{$l}<input class='form-control' type='text' id=\"$id\" name=\"$id\" value=\"$value\" ".($placeholder ? "placeholder='$placeholder'" : '').">");
-		$this->add_to_output($this->form_help_block($help, $this->error));		
+		$this->add_to_output($this->form_help_block($help, $this->element_error));		
 		$this->add_to_output("</div>\n");
 	
 		return $this;
@@ -70,9 +84,9 @@ class Form extends WBHObject {
 		$value = $this->check_value($id, $value, $validation);
 		$l = $this->label($label, $id);	
 
-		$this->add_to_output(form_group_start($this->error));
+		$this->add_to_output(form_group_start($this->element_error));
 		$this->add_to_output("{$l} <textarea class='form-control' id='{$id}' name='{$id}' cols='{$cols}' rows='{$rows}'>{$value}</textarea>");
-		$this->add_to_output($this->form_help_block($help, $this->error));		
+		$this->add_to_output($this->form_help_block($help, $this->element_error));		
 		$this->add_to_output("</div>\n");	
 		return $this;
 	}
@@ -85,36 +99,38 @@ class Form extends WBHObject {
 
 	function submit($value = 'Submit') {
 		$this->add_to_output("<button type=\"submit\" class=\"btn btn-primary\">{$value}</button>\n");
+		//$this->submit_id = 
 		return $this;
 	}
 
-	function drop($name, $opts, $selected = null, $label = null, $help = null, $validation = null) {
+	function drop($id, $opts, $selected = null, $label = null, $help = null, $validation = null) {
 		$value = $this->check_value($id, $selected, $validation);
-		$l = $this->label($label, $name);
+		$l = $this->label($label, $id);
 
-		$this->add_to_output($this->form_group_start($this->error));	
-		$$this->add_to_output("{$l} <select class='form-control' name='$name' id='$name'><option value=''></option>\n");
-		foreach ($opts as $id => $show) {
-			$this->add_to_output("<option value='$id'");
-			if ($id == $selected) { $this->add_to_output(" SELECTED "); } 
+		$this->add_to_output($this->form_group_start($this->element_error));	
+		$this->add_to_output("{$l} <select class='form-control' name='$id' id='$id'><option value=''></option>\n");
+		foreach ($opts as $oid => $show) {
+			$this->add_to_output("<option value='$oid'");
+			if ($oid == $selected) { $this->add_to_output(" SELECTED "); } 
 			$this->add_to_output(">$show</option>\n");
 		}
 		$this->add_to_output("</select>");
-		$this->add_to_output($this->form_help_block($help, $this->error));		
+		$this->add_to_output($this->form_help_block($help, $this->element_error));		
 		$this->add_to_output("</div>\n");
 		return $this;
 	}
 
-	function multi_drop($name, $opts, $selected = null, $label = null, $size = 10, $help = null) {
-		$l = $this->label($label, $name);
+	function multi_drop($id, $opts, $selected = null, $label = null, $size = 10, $help = null, $validation = null) {
+		$value = $this->check_value($id, $selected, $validation);
+		$l = $this->label($label, $id);
 	
 		$this->add_to_output($this->form_group_start());	
-		$this->add_to_output("{$l} <select size='$size' multiple class='form-control' name='{$name}".'[]'."' id='$name'><option value=''></option>\n");
-		foreach ($opts as $id => $show) {
-			$this->add_to_output("<option value=\"$id\"");
+		$this->add_to_output("{$l} <select size='$size' multiple class='form-control' name='{$id}".'[]'."' id='$id'><option value=''></option>\n");
+		foreach ($opts as $oid => $show) {
+			$this->add_to_output("<option value=\"$oid\"");
 			if (is_array($selected)) {
 				foreach ($selected as $sel) {
-					if ($id == $sel) { $this->add_to_output(" SELECTED "); } 
+					if ($oid == $sel) { $this->add_to_output(" SELECTED "); } 
 				}
 			} else {
 				if ($id == $sel) { $this->add_to_output(" SELECTED "); } 
@@ -130,6 +146,7 @@ class Form extends WBHObject {
 
 
 	function radio($name, $opts, $selection = null, $help = null) {
+		$value = $this->check_value($id, $selected);
 		$i = 1;
 		$this->add_to_output("<div class='radio-inline'>");
 		foreach ($opts as $id => $label) {
@@ -142,11 +159,12 @@ class Form extends WBHObject {
 		return $this;
 	}
 
-	function checkbox($name, $value, $label = null, $checked = false, $multiple = false, $help = null) {
-		$label = wbh_figure_label($label, $name, false);
-		if ($multiple) { $name = "{$name}[]"; }
+	function checkbox($id, $value, $label = null, $checked = false, $multiple = false, $help = null) {
+		$value = $this->check_value($id, $checked);
+		$label = $this->figure_label($label, $id, false);
+		if ($multiple) { $id = "{$id}[]"; }
 		$this->add_to_output("<div class='checkbox-inline'><label class=\"checkbox inline\">
-		  <input type=\"checkbox\" name=\"{$name}\" value=\"{$value}\" ".($checked ? 'checked' : '').">
+		  <input type=\"checkbox\" name=\"{$id}\" value=\"{$value}\" ".($checked ? 'checked' : '').">
 		  {$label}
 		</label></div>");
 		return $this;
@@ -201,6 +219,13 @@ class Form extends WBHObject {
 		$this->output .= $stuff;
 		return $this;
 	}
-
+	
+	private function is_submitted() {
+		if (isset($_REQUEST[$this->submitted_id])) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
 ?>

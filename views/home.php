@@ -9,19 +9,19 @@ if ($u->logged_in()) {
 } else {
 	echo  "<h2>Log In</h2>\n";
 	echo  "<p>You are not logged in. To log in, you don't need a password or a Facebook account but you do need an email account.</p>";
-	echo  $u->get_login_form();
+	echo  $u->get_login_form()->get_form('inline');
 }
 	echo  "</div></div></div>\n"; // end of log in prompt div, and its column and row
 
 	echo  "<div class='row'><div class='col-md-12'>\n";
 	echo  "<h2>All Upcoming Workshops</h2>\n"; 
-	//echo  wbh_get_workshops_list(0);
+include "{$data['path']}workshop_list.php"; 	
 	echo  "</div></div> <!-- end of col and row -->\n";
 		
 	echo  "<div class='row'><div class='col-md-12'>";
 	echo  "<h2>Your Current/Past Workshops</h2>";
 if ($u->logged_in()) {
-	//echo  wbh_get_transcript_tabled($u);  
+include "{$data['path']}transcript.php"; 	
 } else {
 	echo  "<p>You're not logged in, so I can't list your workshops. Log in further up this page.</p>";
 }
@@ -29,6 +29,6 @@ if ($u->logged_in()) {
 	echo  "<p>Paying? Lateness? Levels? See <a href='$sc?v=faq'>questions</a>.</p>\n";		
 	echo  "</div></div> <!-- end of col and row -->\n";	
 		
-include 'views/mailchimp.php';
+include "{$data['path']}mailchimp.php";
 			
 echo "<br><br>\n";

@@ -17,7 +17,9 @@ class Model extends WBHObject {
 		$this->db = DB::init();
 	}
 
-	// data methods
+	/*
+	* data methods
+	*/
 	public function get_everything() {
 		$sql = "select * from {$this->tableName} order by id";
 		$rows = $this->query($sql) or $this->db_error();
@@ -48,8 +50,19 @@ class Model extends WBHObject {
 		return $dropdown;
 	}
 
-	// data connection methods
- 	public function query($sql) {
+
+	public function getCol($id) {
+		if (isset($this->cols[$id])) {
+			return $this->cols[$id];
+		} else {
+			return null;
+		}
+	}
+
+	/*
+	* data connection methods
+ 	*/
+	public function query($sql) {
  		$rows = mysqli_query($this->db, $sql) or $this->db_error();	
  		return $rows;
  	}

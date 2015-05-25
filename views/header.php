@@ -75,10 +75,10 @@ if ($data['sc'] == 'admin.php') {
 
 
 if (isset($data['error']) && $data['error']) {
-	echo "<div class='alert alert-danger'>$error</div>\n";
+	echo "<div class='alert alert-danger'>{$data['error']}</div>\n";
 }
 if (isset($data['message']) && $data['message']) {
-	echo "<div class='alert alert-success'>$message</div>\n";
+	echo "<div class='alert alert-success'>{$data['message']}</div>\n";
 }
 
 ?>		

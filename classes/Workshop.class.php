@@ -4,11 +4,11 @@ class Workshop extends Model {
 	function __construct($id = null) {
 		parent::__construct(); // set DB
 		if ($id) {
-			$this->setWorkshopById($id);
+			$this->setById($id);
 		}
 	}
 	
-	public function setWorkshopById($id) {
+	public function setById($id) {
 				
 		$sql = "select w.*, l.place, l.lwhere from workshops w LEFT OUTER JOIN locations l on w.location_id = l.id where w.id = ".$this->mres($id);
 		
@@ -48,7 +48,10 @@ class Workshop extends Model {
 	
 	// pass in the workshop row as it comes from the database table
 	// add some columns with date / time stuff figured out
-	private function format_workshop_startend() {
+	public function format_workshop_startend($cols = null) {
+		if ($cols) {
+			$this->cols = $cols;
+		}
 		if (date('Y', strtotime($this->cols['start'])) != date('Y')) {
 			$this->cols['showstart'] = date('D M j, Y - g:ia', strtotime($this->cols['start']));
 		} else {
@@ -106,10 +109,39 @@ class Workshop extends Model {
 			$r = new Registration();
 			$r = $r->invite_next_waiting($this);
 			$this->setById($this->cols['id']); // refresh this object so we get new totals
+			if ($r->message) { $this->setMessage($r->message); }
 		}
-		if ($r->message) { return $r->message; }
-		return "No invites sent.";
+		if ($this->message) {
+			return $this->message;
+		} else {
+			return "No invites sent.";
+		}
 	}
+	
+	
+	public function get_workshops_list($admin = 0) {
+		
+		$rows_to_show = null;
+		
+		$sql = 'select w.*, l.place, l.lwhere 
+		from workshops w LEFT OUTER JOIN locations l on w.location_id = l.id ';
+		$sql .= $admin ? " order by start desc" : " order by start asc";
+		$rows = $this->query( $sql) or $this->db_error();
+		$i = 0;
+
+		while($row = mysqli_fetch_assoc($rows)) {
+			$this->setById($row['id']);
+
+			if ($this->cols['type'] == 'past' && !$admin) { continue; }
+			if (strtotime($this->cols['when_public']) > time() && !$admin) {
+				continue;
+			}
+		
+			$rows_to_show[] = $this->cols;
+		}
+		return $rows_to_show;
+	}
+		
 	
 }	
 	

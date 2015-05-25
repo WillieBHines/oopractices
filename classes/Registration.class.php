@@ -5,10 +5,13 @@ class Registration extends Model {
 	private $workshop;
 	private $user;
 		
-	function __construct() {
+	function __construct(Workshop $wk = null, User $u = null) {
 		parent::__construct(); // sets DB object
 		$st = new Statuses();
 		$this->statuses = $st->get_statuses();
+		if ($wk && $u) {
+			$this->set_registration($wk, $u);
+		}
 	}
 	
 	public function set_registration(Workshop $wk, User $u) {
@@ -31,20 +34,21 @@ class Registration extends Model {
 		return $this; // no registration found
 	}
 
-	private function set_rank() {
-		if ($this->cols['id']) { // make sure registration data is set
-			// figure rank in workshop
-			$sql2 = "select r.* from registrations r where r.workshop_id = ".$this->mres($this->cols['workshop_id'])." and r.status_id = '".$this->mres($this->cols['status_id'])."' order by last_modified";
-			$rows2 = $this->query( $sql2) or $this->db_error();
-			$i = 1;
-			while ($row2 = mysqli_fetch_assoc($rows2)) {
-				if ($row2['id'] == $this->cols['id']) {
-					break;
-				}
-				$i++;
-			}
-			$this->cols['rank'] = $i;
+	public function set_rank($cols = null) {
+		if ($cols) {
+			$this->cols = $cols;
 		}
+		// figure rank in workshop
+		$sql2 = "select r.* from registrations r where r.workshop_id = ".$this->mres($this->cols['workshop_id'])." and r.status_id = '".$this->mres($this->cols['status_id'])."' order by last_modified";
+		$rows2 = $this->query( $sql2) or $this->db_error();
+		$i = 1;
+		while ($row2 = mysqli_fetch_assoc($rows2)) {
+			if ($row2['id'] == $this->cols['id']) {
+				break;
+			}
+			$i++;
+		}
+		$this->cols['rank'] = $i;
 		
 	}
 
@@ -107,6 +111,22 @@ class Registration extends Model {
 		return $this;
 		
 	}
-			
+	
+	/*
+	* methods for dealing with a user's registrations
+	*/
+	function get_transcript_for_user(User $u) {
+		if (isset($u->cols['id'])) {
+			$sql = "select *, r.id as registration_id from registrations r, workshops w, locations l, statuses s where r.workshop_id = w.id and w.location_id = l.id and r.status_id = s.id and r.user_id = ".$this->mres($u->cols['id'])." order by w.start desc";
+			$rows = $this->query( $sql) or $this->db_error();
+			$transcripts = array();
+			while ($row = mysqli_fetch_assoc($rows)) {
+				$transcripts[] = $row;
+			}
+			return $transcripts;		
+		} else {
+			return null;
+		}
+	}		
 }	
 ?>

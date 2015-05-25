@@ -8,5 +8,5 @@ $r = isset($data['registration']) ? $data['registration'] : null;
 $key = isset($u->key->keycode) ? $u->key->keycode : null;
 $uid = isset($u->cols['id']) ? $u->cols['id'] : null;
 $wid = isset($wk->cols['id']) ? $wk->cols['id'] : null;
-
+$admin = isset($data['admin']) ? $data['admin'] : null;
 ?>

@@ -24,9 +24,8 @@ class View extends WBHObject
 	
 	// just add to data
 	public function updateData() {
-		$this->data['error'] = $this->error;
-		$this->data['message'] = $this->message;
 		$this->data['sc'] = $_SERVER['SCRIPT_NAME'];
+		$this->data['path'] = $this->snippetDir.'/';
 	    return $this->data;
 	}	
 
