@@ -18,11 +18,6 @@ class StatusChangeLog extends Model {
 	* change log stuff
 	*/
 	function update_change_log($status_id) {
-		if (!$status_id) {
-			$this->setError("no status id set");
-			return $this;
-		}
-		
 		$sql = sprintf("insert into status_change_log (workshop_id, user_id, status_id, happened) VALUES (%u, %u, %u, '%s')",
 		$this->mres ($this->workshop->cols['id']),
 		$this->mres ($this->user->cols['id']),
@@ -66,6 +61,12 @@ class StatusChangeLog extends Model {
 		}
 		return $log;
 	}	
+
+	public function change_user_id($old_id, $new_id) {
+		$sql = "update status_change_log set user_id = ".$this->mres($new_id)." where user_id = ".$this->mres($old_id);
+		return $this->query($sql) or $this->db_error();
+		
+	}
 
 }	
 ?>

@@ -4,6 +4,7 @@ class Registration extends Model {
 	private $statuses;
 	private $workshop;
 	private $user;
+	protected $table_name = 'registrations';
 		
 	function __construct(Workshop $wk = null, User $u = null) {
 		parent::__construct(); // sets DB object
@@ -39,7 +40,7 @@ class Registration extends Model {
 			$this->cols = $cols;
 		}
 		// figure rank in workshop
-		$sql2 = "select r.* from registrations r where r.workshop_id = ".$this->mres($this->cols['workshop_id'])." and r.status_id = '".$this->mres($this->cols['status_id'])."' order by last_modified";
+		$sql2 = "select r.* from registrations r where r.workshop_id = ".$this->mres($this->cols['workshop_id'])." and r.status_id = '".$this->mres($this->cols['status_id'])."' order by last_modified desc";
 		$rows2 = $this->query( $sql2) or $this->db_error();
 		$i = 1;
 		while ($row2 = mysqli_fetch_assoc($rows2)) {
@@ -52,33 +53,6 @@ class Registration extends Model {
 		
 	}
 
-	public function change_status($status_id = ENROLLED, $confirm = true) {
-		
-		if (!$this->workshop || !$this->user) {
-			$this->setError("Registration object existed, but no registration data was set into it");
-			return $this;
-		}
-	
-		if ($this->cols['status_id'] != $status_id) {
-			$sql = "update registrations set status_id = '".$this->mres($status_id)."',  last_modified = ".date("Y-m-d H:i:s")." where workshop_id = ".$this->mres($this->cols['workshop_id'])." and user_id = ".$this->mres($this->cols['user_id']);
-			$this->query( $sql) or $this->db_error();
-			
-			$sc = new StatusChangeLog($this->workshop, $this->user);
-			$sc->update_change_log($status_id);
-		}
-	
-		//if ($confirm) { wbh_confirm_email($wk, $u, $status_id); }
-		$return_msg = "Updated user ({$this->user->cols['email']}) to status '{$this->statuses[$status_id]}' for {$this->workshop->cols['showtitle']}.";
-		if (DEBUG_MODE) {
-			mail(WEBMASTER, "{$this->user->cols['email']} now '{$this->statuses['status_id']}' for '{$this->workshop['showtitle']}'", $return_msg, "From: ".WEBMASTER);
-		}
-	
-		return $return_msg;
-	}	
-	
-	
-
-	
 	/*
 	* methods for dealing with a workshop's set of registrations
 	*/
@@ -100,11 +74,11 @@ class Registration extends Model {
 	
 	public function invite_next_waiting(Workshop $wk) {
 		// invite next person
-		$sql = "select * from registrations where workshop_id = ".mres($wk->cols['id'])." and status_id = '".WAITING."' order by last_modified limit 1";
+		$sql = "select * from registrations where workshop_id = ".mres($wk->cols['id'])." and status_id = '".WAITING."' order by last_modified desc limit 1";
 		$rows = $this->query( $sql) or $this->db_error();
 		while ($row = mysqli_fetch_assoc($rows)) {
 			$this->set_registration($wk, new User($row['user_id']));
-			$this->setMessage($this->change_status(INVITED, true));
+			$this->change_status(INVITED, true);
 			return $this;
 		}
 		$this->setError('no one found to invite');
@@ -127,6 +101,50 @@ class Registration extends Model {
 		} else {
 			return null;
 		}
-	}		
+	}	
+	
+	public function change_status($status_id = ENROLLED, $confirm = true) {
+		
+		if (!$this->workshop) { $this->setError("no workshop set"); return false; } 
+		if (!$this->user) { $this->setError("no user set"); return false; } 
+		
+		if ($status_id == ENROLLED) { // downgrade enrolled to waiting if workshop is full
+			$status_id = $this->workshop->has_room() ? ENROLLED : WAITING;
+		}
+
+
+		$this->cols['status_id'] = $status_id;
+		$this->cols['status_name'] = $this->statuses[$this->getCol('status_id')];
+		$this->cols['last_modified'] = $this->mysql_now_string();
+
+		// need to add a registration...?
+		if (!$this->getCol('id')) {
+			$this->cols['user_id'] = $this->user->getCol('id');
+			$this->cols['workshop_id'] = $this->workshop->getCol('id');
+			$this->cols['registered'] = $this->mysql_now_string();
+			if (!$this->add($this->cols, 'new registration', true)) {
+				return false;
+			};
+			$this->set_registration($this->workshop, $this->user);
+		} elseif ($this->cols['status_id'] != $status_id) {
+			if (!$this->save($this->cols, "registration status", true)) {
+				return false;
+			}
+		}
+		//if ($confirm) { wbh_confirm_email($wk, $u, $status_id); }
+		$this->update_status_change_log($status_id);
+		$this->setMessage("User ({$this->user->cols['email']}) is of status '{$this->getCol('status_name')}' for {$this->workshop->cols['showtitle']}.");
+		return $this;
+	}	
+	
+	
+	public function update_status_change_log($status_id) {
+		$sc = new StatusChangeLog($this->workshop, $this->user);
+		$sc->update_change_log($status_id);
+		return $sc;
+	}
+		
+	
+		
 }	
 ?>

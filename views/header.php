@@ -72,8 +72,6 @@ if ($data['sc'] == 'admin.php') {
 	echo "</div>\n";
 }
 
-
-
 if (isset($data['error']) && $data['error']) {
 	echo "<div class='alert alert-danger'>{$data['error']}</div>\n";
 }

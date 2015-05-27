@@ -8,7 +8,7 @@ class DB extends WBHOBject {
 	private static $db = null; // db link
 	
     private function __construct(){
-         self::$db = mysqli_connect('localhost', 'whines_workshops', 'meet1962', 'whines_workshops');
+         self::$db = mysqli_connect('localhost', 'whines_workshops', 'meet1962', 'whines_test_workshops');
      }
 
      public static function init() {

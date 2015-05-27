@@ -7,12 +7,12 @@
 if ($wk->cols['type'] == 'past') {
 	$point = "This workshop is IN THE PAST.";
 } elseif ($r->cols['status_id']) {
-	switch ($u->logged_in() && $r->cols['status_id']) {
+	switch ($r->cols['status_id']) {
 		case ENROLLED:
 			$point = "You are ENROLLED in this practice. Would you like to <a class='btn btn-default' href='$sc?ac=drop&wid={$wid}&uid={$uid}&key={$key}'>drop</a> it?";
 			break;
 		case WAITING:
-			$point = "You are spot number {$e['rank']} on the WAIT LIST for this practice. Would you like to <a class='btn btn-default' href='$sc?ac=drop&wid={$wid}&uid={$uid}&key={$key}'>drop</a> it?";
+			$point = "You are spot number {$r->getCol('rank')} on the WAIT LIST for this practice. Would you like to <a class='btn btn-default' href='$sc?ac=drop&wid={$wid}&uid={$uid}&key={$key}'>drop</a> it?";
 			break;
 		case INVITED:
 			$point = "A spot opened up in this practice. Would you like to <a class='btn btn-default' href='$sc?ac=accept&wid={$wid}&uid={$uid}&key={$key}'>accept</a> it, or <a class='btn btn-default' href='$sc?ac=decline&wid={$wid}&uid={$uid}&key={$key}'>decline</a> it?";

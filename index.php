@@ -1,10 +1,7 @@
 <?php
 include 'common.php';	
 
-// might be able to pull some of these out into a Form object
-$flow->whiteList = array('ac', 'wid', 'uid', 'v');
-
-if ($flow->params['wid']) {
+if ($wk->getCol('id')) { // if workshop data is set, default to viewing it
 	$flow->params['v'] = 'view';
 }
 
@@ -12,29 +9,42 @@ switch ($flow->params['ac']) {
 	
 	case 'lo':
 		$u->log_out();
-		$message = 'You are logged out!';
+		$v->setFeedback($u->message, $u->error);
 		break;
 	
 	case 'textup':
 		$u->save( $u->get_text_preferences_form()->get_values() );
+		$v->setFeedback($u->message, $u->error);
 		$flow->params['v'] = 'text';
 		break;
 		
 	case 'reset':
-		if ($u->logged_in()) {
-			$u->reset_current_key();
-			$message = 'I made a new key, sent it to you in an email and then logged you out.';
-		}
+		$u->reset_current_key();
+		$v->set_feedback($u->message, $u->error);
 		break;
 
 	case 'link':
 		$params = $u->get_login_form()->get_values();
-		if ($u->send_login_email($params['email'])) { // this will make a new user if we need it
-			$message = "Thanks! I've sent a link to your {$u->getCol('email')}. Click it! (check your spam folder).";
- 		} else {
-			$error = $u->error;
-		}
+		$u->send_login_email($params['email']);  // this will make a new user if we need it
+		$v->set_feedback($u->message, $u->error);
 		break;	
+		
+	case 'cemail':
+		$u->change_email_request();
+		$v->set_feedback($u->message, $u->error);
+		$flow->params['v'] = 'email';
+		break;
+		
+	case 'concemail':
+		$u->change_email();
+		$v->set_feedback($u->message, $u->error);
+		break;
+	
+	case 'enroll':
+		$r->set_registration($wk, $u);
+		$r->change_status(ENROLLED, true);
+		$v->set_feedback($r->message, $r->error);
+		break;
 	
 }	
 
@@ -59,7 +69,7 @@ switch ($flow->params['v']) {
 		break;
 	
 	default:
-		$data['upcoming'] = $wk->get_workshops_list(0);
+		$data['upcoming'] = $wk->get_workshops_list();
 		$data['transcript'] = $u->get_transcript();
 		$template = 'home';	
 	
@@ -69,9 +79,7 @@ $data['admin'] = false;
 $data['workshop'] = $wk;
 $data['user'] = $u;
 $data['registration'] = $r;
-$data['message'] = isset($message) ? $message : null;
-$data['error'] = isset($error) ? $error : null;
-$view->renderPage($template, $data);
+$v->renderPage($template, $data);
 
 ?>
 

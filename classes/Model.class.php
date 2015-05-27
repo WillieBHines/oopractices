@@ -59,7 +59,7 @@ class Model extends WBHObject {
 		}
 	}
 	
-	public function save($params) {
+	public function save($params, $data_description = 'data', $silent = false) { // 'data description' is for the status message
 		if (isset($params['id'])) {
 			$fields = $this->get_field_names();
 			$sql = '';
@@ -72,11 +72,47 @@ class Model extends WBHObject {
 			$sql = "update {$this->table_name} set $sql where id = ".$this->mres($params['id']);
 			$this->query($sql) or $this->db_error();
 			$this->merge_into_cols($params); // update object with data
+			if (!$silent) {
+				$this->setMessage("Saved {$data_description}.");
+			}
+			return $this;
 		} else {
+			$this->setError("Failed to save {$data_description}.");
 			return false;
 		}
 		
 	}
+
+	public function add($params, $data_description = 'data', $silent = false) { // 'data description' is for the status message
+		if (isset($params)) {
+			$fields = $this->get_field_names();
+			$names = '';
+			$values = '';
+			foreach ($fields as $f) {
+				if (isset($params[$f]) && $f != 'id') {
+					if ($names) { 
+						$names .= ', '; 
+						$values .= ", ";
+					}
+					$names .= $f;
+					$values .= "'".$this->mres($params[$f])."'";
+				}
+			}
+			$sql = "insert into {$this->table_name} ($names) VALUES ($values)";
+			$this->query($sql) or $this->db_error();
+			$this->merge_into_cols($params); // update object with data
+			$this->cols['id'] = mysqli_insert_id($this->db);
+			if (!$silent) {
+				$this->setMessage("Added {$data_description}.");
+			}
+			return $this;
+		} else {
+			$this->setError("Failed to add {$data_description}.");
+			return false;
+		}
+		
+	}
+
 	
 	private function get_field_names() {
 		$sql = "select * from {$this->table_name} limit 1";
@@ -91,6 +127,10 @@ class Model extends WBHObject {
 	
 	private function merge_into_cols($params) {
 		$this->cols = array_merge($this->cols, $params);
+	}
+
+	protected function mysql_now_string() {
+		return date('Y-m-d H:i:s', time());
 	}
 
 	/*

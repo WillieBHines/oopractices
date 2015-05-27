@@ -6,13 +6,17 @@ class Flow extends WBHOBject {
 	public $params;
 	
 	function __construct($vars = null) {
-		$this->setWhiteList($vars);
+		if ($vars) {
+			$this->setWhiteList($vars);
+		}
 	}
 		
 	public function setWhiteList($whiteList) {
-		$this->whiteList = $whiteList;
-		foreach ($this->whiteList as $va) {
-			$this->get($va);
+		if (is_array($whiteList)) {
+			$this->whiteList = $whiteList;
+			foreach ($this->whiteList as $va) {
+				$this->get($va);
+			}
 		}
 	}
 

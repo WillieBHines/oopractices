@@ -8,6 +8,9 @@ class Workshop extends Model {
 		}
 	}
 	
+	/*
+	* methods to create object, set up/format workshop data
+	*/
 	public function setById($id) {
 				
 		$sql = "select w.*, l.place, l.lwhere from workshops w LEFT OUTER JOIN locations l on w.location_id = l.id where w.id = ".$this->mres($id);
@@ -39,10 +42,10 @@ class Workshop extends Model {
 	private function set_type() {
 		if (strtotime($this->cols['start']) < strtotime('now')) { 
 			$this->cols['type'] = 'past'; 
-		} elseif ($this->cols['enrolled'] >= $this->cols['capacity'] || $this->cols['waiting'] > 0 || $this->cols['invited'] > 0) { 
-			$this->cols['type'] = 'soldout'; 
-		} else {
+		} elseif ($this->has_room()) { 
 			$this->cols['type'] = 'open';
+		} else {
+			$this->cols['type'] = 'soldout'; 
 		}
 	}
 	
@@ -96,7 +99,17 @@ class Workshop extends Model {
 		return $this;
 	}
 
+	public function has_room() {
+		 if (($this->getCol('enrolled')+$this->getCol('invited')+$this->getCol('waiting')) < $this->getCol('capacity')) {
+			 return true;
+		 } else {
+			 return false;
+		 }
+	}
 
+	/*
+	* methods to update data in the workshop
+	*/
 	public function check_waiting() {		
 		if ($this->cols['type'] == 'past') {
 			return 'Workshop is in the past';
@@ -119,7 +132,7 @@ class Workshop extends Model {
 	}
 	
 	
-	public function get_workshops_list($admin = 0) {
+	public function get_workshops_list($admin = false) {
 		
 		$rows_to_show = null;
 		

@@ -20,14 +20,14 @@ define('WEBMASTER', "will@willhines.net");
 
 
 // page content and flow
-$view = new View(); // will use on every page	
-$flow = new Flow(array('ac', 'v', 'wid', 'uid')); // deals with parameters, urls
+$v = new View(); // used to render templates	
+$flow = new Flow(array('ac', 'wid', 'uid', 'v')); // deals with parameters, urls
 $template = ''; // what template to load
 $data = ''; // data for the template
 
-// get three main objects going
-$wk = new Workshop($flow->params['wid']);
-$u = new User($flow->params['uid']);
+// get three main data objects going
+$wk = new Workshop ($flow->params['wid']);
+$u = new User(); 
 $r = new Registration;
 
 ?>

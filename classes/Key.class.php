@@ -15,7 +15,7 @@ class Key extends WBHObject {
 			$this->keycode = $_SESSION['s_key'] = $_COOKIE['c_key'];
 		}
 		
-		if ($this->keycode) {
+		if ($this->keycode && !headers_sent()) {
 			setcookie("c_key", $this->keycode, time()+(3600*24*7));  /* expire in 1 week */
 		}
 		
