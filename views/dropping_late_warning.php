@@ -1,0 +1,1 @@
+NOTE: You are dropping within {$late_hours} hours of the start, and there was a waiting list. If it's too short notice for someone to take your spot, I might ask you to pay anyway."

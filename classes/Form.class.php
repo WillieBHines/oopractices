@@ -84,14 +84,14 @@ class Form extends WBHObject {
 		$value = $this->check_value($id, $value, $validation);
 		$l = $this->label($label, $id);	
 
-		$this->add_to_output(form_group_start($this->element_error));
+		$this->add_to_output($this->form_group_start($this->element_error));
 		$this->add_to_output("{$l} <textarea class='form-control' id='{$id}' name='{$id}' cols='{$cols}' rows='{$rows}'>{$value}</textarea>");
 		$this->add_to_output($this->form_help_block($help, $this->element_error));		
 		$this->add_to_output("</div>\n");	
 		return $this;
 	}
  
-	function hidden($id, $value = '', $ignore_request = null) {
+	function hidden($id, $value = '', $ignore_request = true) {
 		if (!$ignore_request) {
 			$value = $this->check_value($id, $value);
 		}

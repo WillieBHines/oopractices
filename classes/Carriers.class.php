@@ -29,6 +29,18 @@ class Carriers extends Model {
 		}
 		return $drop;
 	}
-				
+
+	public function shorten_link($link) {
+	
+		// bit.ly registered token is: 70cc52665d5f7df5eaeb2dcee5f1cdba14f5ec94
+		// under whines@gmail.com / meet1962
+	
+		//tempoary while working locally
+		$link = preg_replace('/localhost:8888/', 'www.willhines.net', $link);
+		$link = urlencode($link);
+		$response = file_get_contents("https://api-ssl.bitly.com/v3/shorten?access_token=70cc52665d5f7df5eaeb2dcee5f1cdba14f5ec94&longUrl={$link}&format=txt");
+		return $response;
+	}
+					
 }	
 ?>

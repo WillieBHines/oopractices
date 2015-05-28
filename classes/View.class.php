@@ -14,7 +14,10 @@ class View extends WBHObject
 			$this->data = array_merge($this->data, $data); // take the data that's passed in
 		}
 		$data = $this->updateData(); // add some things to it
-		include $this->getPageStr($this->common_vars_page);
+	    if (is_array($data) && !empty($data)) {
+	        extract($data);
+	    }
+		//include $this->getPageStr($this->common_vars_page);
 		include $this->getPageStr($this->header);
 		include $this->getPageStr($page);
 		include $this->getPageStr($this->footer);
@@ -28,6 +31,20 @@ class View extends WBHObject
 	    ob_start();
 		include $this->getPageStr($bargle);
 	    return ob_get_clean();
+	}
+	
+	public function renderHTML($html, $data = null) {
+		if ($data) {
+			$this->data = array_merge($this->data, $data); // take the data that's passed in
+		}
+		$data = $this->updateData(); // add some things to it
+	    if (is_array($data) && !empty($data)) {
+	        extract($data);
+	    }
+		//include $this->getPageStr($this->common_vars_page);
+		include $this->getPageStr($this->header);
+		echo $html;
+		include $this->getPageStr($this->footer);
 	}
 
 	private function getPageStr($pagename) {

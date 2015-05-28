@@ -169,6 +169,16 @@ Thanks!
 		
 	}
 	
+	public function drop_request($wk) {
+		if ($this->logged_in()) {
+			
+			$this->setMessage("You've requested to drop out of this workshop. Click here to <a  class='btn btn-default' href='".URL."index.php?key{$this->key->keycode}&wid={$wk->getCol('id')}&ac=condrop'>really drop it</a>");
+			return $this;
+		} else {
+			$this->setError("You're not logged in, so you can't drop a workshop.");
+			return false;
+		}
+	}
 
 	
 	
@@ -269,6 +279,27 @@ Thanks!
 			return false;
 		}
 	}
+	
+	/*
+	* other methods to deal with users
+	*/
+	function send_text($msg) {
+		if (!$this->getCol('send_text')) {
+			return $this; // not false because this is not an error
+		} 
+		if (!$this->getCol('carrier_id') || !$this->getCol('phone') || strlen($this->getCol('phone')) != 10) {
+			$this->setError("user wants texts, but has not given us network/phone info");
+			print_r($this);
+			return false;
+		}
+		$to = $this->getCol('phone').'@'.Carriers::$carriers[$this->getCol('carrier_id')]['email'];	
+		if (!mail($to, '', $msg, "From: ".WEBMASTER)) {
+			$this->setError("could not send text via email");
+			return false;
+		} else {
+			return $this;
+		};
+	}	
 			
 }	
 ?>

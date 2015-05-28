@@ -1,12 +1,11 @@
 <?php
-$rows = $data['transcript'];
-if (count($rows) == 0) {
+if (count($transcript) == 0) {
 	echo "<p>You have not taken any practices! Which is fine, but that's why this list is empty.</p>\n";
 } else {
 	echo "<table class='table table-striped'><thead><tr><th>Title</th><th>When</th><th>Where</th><th>Status</th><th>Action</th></tr></thead>\n";
 	echo "<tbody>";
 
-	foreach ($rows as $t) {
+	foreach ($transcript as $t) {
 		
 		$wk = new Workshop();
 		$wk->format_workshop_startend($t); // use transcript data so wk doesn't need a data call

@@ -1,7 +1,8 @@
 <?php
 include 'common.php';	
 
-if ($wk->getCol('id')) { // if workshop data is set, default to viewing it
+if (isset($flow->params['wid']) && $flow->params['wid']) {
+	$wk = new Workshop($flow->params['wid']);
 	$flow->params['v'] = 'view';
 }
 
@@ -41,10 +42,24 @@ switch ($flow->params['ac']) {
 		break;
 	
 	case 'enroll':
+	case 'accept':
 		$r->set_registration($wk, $u);
 		$r->change_status(ENROLLED, true);
 		$v->set_feedback($r->message, $r->error);
 		break;
+		
+	case 'decline':
+	case 'condrop':
+		$r->set_registration($wk, $u);
+		$r->change_status(DROPPED, true);
+		$v->set_feedback($r->message, $r->error);
+		break;
+		
+	case 'drop':
+		$u->drop_request($wk);
+		$v->set_feedback($u->message, $u->error);
+		break;
+		
 	
 }	
 
@@ -69,16 +84,17 @@ switch ($flow->params['v']) {
 		break;
 	
 	default:
-		$data['upcoming'] = $wk->get_workshops_list();
+		$data['workshop_list'] = $wk->get_workshops_list();
 		$data['transcript'] = $u->get_transcript();
 		$template = 'home';	
 	
 }
 
 $data['admin'] = false;
-$data['workshop'] = $wk;
-$data['user'] = $u;
-$data['registration'] = $r;
+$data['wk'] = $wk;
+$data['u'] = $u;
+$data['r'] = $r;
+$data['sc'] = $_SERVER['SCRIPT_NAME'];
 $v->renderPage($template, $data);
 
 ?>

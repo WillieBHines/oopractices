@@ -26,7 +26,7 @@ $template = ''; // what template to load
 $data = ''; // data for the template
 
 // get three main data objects going
-$wk = new Workshop ($flow->params['wid']);
+$wk = new Workshop ();
 $u = new User(); 
 $r = new Registration;
 

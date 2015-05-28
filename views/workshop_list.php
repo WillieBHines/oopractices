@@ -1,5 +1,5 @@
 <?php
-$rows = $data['upcoming'];
+$rows = $data['workshop_list'];
 	
 $rowclass = array(
 	'soldout' => 'danger',
@@ -23,15 +23,14 @@ echo "<table class='table table-striped'><thead><tr>
 			$public = "<br><small>Public: ".date('D M j - g:ia', strtotime($row['when_public']))."</small>\n";
 		}	
 		$i++;
-		echo "<tr class='{$rowclass[$row['type']]}'>";
-		$titlelink = ($data['admin'] ? "<a href='$sc?wid={$row['id']}&v=ed'>{$row['title']}</a>" : "<a href='$sc?wid={$row['id']}&v=view'>{$row['title']}</a>");
-		echo "<td>{$titlelink}".($row['notes'] ? "<p class='small text-muted'>{$row['notes']}</p>" : '')."</td>
+		echo "<tr class='{$rowclass[$row['type']]}'>";		
+		echo "<td><a href='$sc?wid={$row['id']}&v=view'>{$row['title']}</a><p class='small text-muted'>{$row['notes']}</p></td>
 		<td>{$row['when']}{$public}</td>
 		<td>{$row['place']}</td>
 		<td>{$row['cost']}</td>
 		<td>".number_format($row['open'], 0)." of ".number_format($row['capacity'], 0).",<br> ".number_format($row['waiting']+$row['invited'])." waiting</td>
 ";
-		if ($data['admin']) {
+		if ($admin) {
 			echo "<td><a href=\"$sc?wid={$row['id']}\">Clone</a></td></tr>\n";
 		} else {
 			$call = ($row['type'] == 'soldout' ? 'Join Wait List' : 'Enroll');

@@ -15,13 +15,13 @@ if ($u->logged_in()) {
 
 	echo  "<div class='row'><div class='col-md-12'>\n";
 	echo  "<h2>All Upcoming Workshops</h2>\n"; 
-include "{$data['path']}workshop_list.php"; 	
+include "{$path}workshop_list.php"; 	
 	echo  "</div></div> <!-- end of col and row -->\n";
 		
 	echo  "<div class='row'><div class='col-md-12'>";
 	echo  "<h2>Your Current/Past Workshops</h2>";
 if ($u->logged_in()) {
-include "{$data['path']}transcript.php"; 	
+include "{$path}transcript.php"; 	
 } else {
 	echo  "<p>You're not logged in, so I can't list your workshops. Log in further up this page.</p>";
 }
@@ -29,6 +29,6 @@ include "{$data['path']}transcript.php";
 	echo  "<p>Paying? Lateness? Levels? See <a href='$sc?v=faq'>questions</a>.</p>\n";		
 	echo  "</div></div> <!-- end of col and row -->\n";	
 		
-include "{$data['path']}mailchimp.php";
+include "{$path}mailchimp.php";
 			
 echo "<br><br>\n";

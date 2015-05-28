@@ -40,7 +40,7 @@ class Registration extends Model {
 			$this->cols = $cols;
 		}
 		// figure rank in workshop
-		$sql2 = "select r.* from registrations r where r.workshop_id = ".$this->mres($this->cols['workshop_id'])." and r.status_id = '".$this->mres($this->cols['status_id'])."' order by last_modified desc";
+		$sql2 = "select r.* from registrations r where r.workshop_id = ".$this->mres($this->cols['workshop_id'])." and r.status_id = '".$this->mres($this->cols['status_id'])."' order by last_modified";
 		$rows2 = $this->query( $sql2) or $this->db_error();
 		$i = 1;
 		while ($row2 = mysqli_fetch_assoc($rows2)) {
@@ -74,7 +74,7 @@ class Registration extends Model {
 	
 	public function invite_next_waiting(Workshop $wk) {
 		// invite next person
-		$sql = "select * from registrations where workshop_id = ".mres($wk->cols['id'])." and status_id = '".WAITING."' order by last_modified desc limit 1";
+		$sql = "select * from registrations where workshop_id = ".mres($wk->cols['id'])." and status_id = '".WAITING."' order by last_modified limit 1";
 		$rows = $this->query( $sql) or $this->db_error();
 		while ($row = mysqli_fetch_assoc($rows)) {
 			$this->set_registration($wk, new User($row['user_id']));
@@ -103,22 +103,49 @@ class Registration extends Model {
 		}
 	}	
 	
-	public function change_status($status_id = ENROLLED, $confirm = true) {
+	/*
+	* "change_status" is an important method. 
+	* we use this to do the main work of this application
+	* 
+	* if you're trying to enroll, it makes sure there's room or that you're invited
+	* it then enrolls or drops
+	* it sends confirmation emails, texts and then updates a change log
+	* it then prompts the workshop object to refresh itself and send invites to waiting list if need be
+	*/
+	public function change_status($target_status_id = ENROLLED, $confirm = true) {
 		
 		if (!$this->workshop) { $this->setError("no workshop set"); return false; } 
 		if (!$this->user) { $this->setError("no user set"); return false; } 
 		
-		if ($status_id == ENROLLED) { // downgrade enrolled to waiting if workshop is full
-			$status_id = $this->workshop->has_room() ? ENROLLED : WAITING;
+		$current_status_id = $this->getCol('status_id');
+		
+		
+		// enrolling downgrades to waiting if 
+		// 1) it's full or 
+		// 2) others are waiting and you're not invited
+		if ($target_status_id == ENROLLED) { 			
+			if ($this->workshop->has_room()) {
+				if ($this->workshop->getCol('waiting') > 0 || $current_status_id != INVITED) {
+					$target_status_id = WAITING;
+				}
+			} else {
+				$target_status_id = WAITING;
+			}
 		}
 
+		// are we already this status?
+		if ($target_status_id == $current_status_id) {
+			$this->setMessage("You are already ".$this->statuses[$target_status_id]." for this workshop.");
+			return $this;
+		}
 
-		$this->cols['status_id'] = $status_id;
-		$this->cols['status_name'] = $this->statuses[$this->getCol('status_id')];
+		// make changes to object
+		$this->cols['status_id'] = $target_status_id;
+		$this->cols['status_name'] = $this->statuses[$target_status_id];
 		$this->cols['last_modified'] = $this->mysql_now_string();
 
-		// need to add a registration...?
-		if (!$this->getCol('id')) {
+		// save changes to database 
+		if (!$this->getCol('id')) { // make a new row?
 			$this->cols['user_id'] = $this->user->getCol('id');
 			$this->cols['workshop_id'] = $this->workshop->getCol('id');
 			$this->cols['registered'] = $this->mysql_now_string();
@@ -126,17 +153,25 @@ class Registration extends Model {
 				return false;
 			};
 			$this->set_registration($this->workshop, $this->user);
-		} elseif ($this->cols['status_id'] != $status_id) {
-			if (!$this->save($this->cols, "registration status", true)) {
+		} else { // just save existing row
+			if (!$this->save($this->cols, "registration", true)) {
 				return false;
 			}
 		}
-		//if ($confirm) { wbh_confirm_email($wk, $u, $status_id); }
-		$this->update_status_change_log($status_id);
-		$this->setMessage("User ({$this->user->cols['email']}) is of status '{$this->getCol('status_name')}' for {$this->workshop->cols['showtitle']}.");
+		
+		// send confirmations, update change log. don't stop on failure for these
+		if ($confirm) { 
+			$this->send_confirm_email();
+			$this->send_confirm_text();
+		}
+		$this->update_status_change_log($target_status_id);
+		$this->setMessage("User ({$this->user->cols['email']}) is now status '{$this->getCol('status_name')}' for {$this->workshop->cols['showtitle']}.");
+		
+		// refresh workshop data, this will check the waiting list and send invites if need be
+		$this->workshop->setById($this->getCol('workshop_id')); 
+		
 		return $this;
-	}	
-	
+	}		
 	
 	public function update_status_change_log($status_id) {
 		$sc = new StatusChangeLog($this->workshop, $this->user);
@@ -145,6 +180,61 @@ class Registration extends Model {
 	}
 		
 	
-		
+	/*
+	* some methods for sending emails and texts
+	*/
+	public function send_confirm_email() {
+		$v = new View();		
+
+		$data['admin'] = false;
+		$data['wk'] = $this->workshop;
+		$data['u'] = $this->user;
+		$data['r'] = $this;
+		$data['sc'] = $_SERVER['SCRIPT_NAME'];
+		$data['faq'] = strip_tags($v->renderSnippet('faq'));
+		$data['late_warning'] = $v->renderSnippet('dropping_late_warning');
+
+		$body = $v->renderSnippet('confirmation_email', $data);
+
+		if (!mail($this->user->getCol('email'), "{$this->getCol('status_name')} for {$this->workshop->getCol('title')}", $body, "From: ".WEBMASTER)) {
+			$this->setError('Failed to send confirmation email.');
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	public function send_confirm_text() {
+		if ($this->user->getCol('send_text')) {
+			
+			$url = URL."index.php?key={$this->user->key->keycode}&wid={$this->workshop->getCol('id')}";
+			$c = new Carriers();
+			$short_url = $c->shorten_link($url);
+
+			$show_name = $this->workshop->getCol('title');
+			switch ($this->getCol('status_id')) {
+				case ENROLLED:
+					$point = "You are ENROLLED in {$show_name}.";
+					break;
+				case WAITING:
+					$point = "You are WAITING (spot {$this->getCol('rank')}) for {$show_name}.";
+					break;
+				case INVITED:
+					$point = "You are INVITED for {$show_name}.";
+					break;
+				case DROPPED:
+					$point = "You have DROPPED from {$show_name}";
+					break;
+			}
+			
+			if (!$this->user->send_text($point.' for more info: '.$short_url)) {
+				$this->setError($this->user->error);
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+
 }	
 ?>

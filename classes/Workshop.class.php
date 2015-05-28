@@ -110,6 +110,29 @@ class Workshop extends Model {
 	/*
 	* methods to update data in the workshop
 	*/
+	public function get_workshop_form() {
+		
+		$l = new Locations();
+		$f = new Form();
+		$f->text('title', $this->getCol('title'));
+		$f->drop('location_id', $l->get_locations_dropdown(), $this->getCol('location_id'));
+		$f->text('start', $this->getCol('start'));
+		$f->text('end', $this->getCol('end'));
+		$f->text('cost', $this->getCol('cost'));
+		$f->text('capacity', $this->getCol('capacity'));
+		$f->textarea('notes', $this->getCol('notes'));
+		$f->text('when_public', $this->getCol('when_public'), 'When Public');
+		$f->hidden('id', $this->getCol('id'));
+		if ($this->getCol('id')) {
+			$f->hidden('ac', 'ed');
+			$f->submit('update workshop');
+		} else {
+			$f->hidden('ac', 'ad');
+			$f->submit('add workshop');
+		}
+		return $f;
+	}
+	
 	public function check_waiting() {		
 		if ($this->cols['type'] == 'past') {
 			return 'Workshop is in the past';
@@ -143,14 +166,11 @@ class Workshop extends Model {
 		$i = 0;
 
 		while($row = mysqli_fetch_assoc($rows)) {
-			$this->setById($row['id']);
 
-			if ($this->cols['type'] == 'past' && !$admin) { continue; }
-			if (strtotime($this->cols['when_public']) > time() && !$admin) {
-				continue;
-			}
+			if (strtotime($row['start']) < time() && !$admin) { continue; }
+			if (strtotime($row['when_public']) > time() && !$admin) { continue; }
 		
-			$rows_to_show[] = $this->cols;
+			$rows_to_show[] = $row;
 		}
 		return $rows_to_show;
 	}

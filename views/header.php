@@ -1,4 +1,4 @@
-<?php $data['heading'] = isset($data['heading']) ? $data['heading']: 'will hines practices'; ?>
+<?php $heading = isset($heading) ? $heading: 'will hines practices'; ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,7 +12,7 @@ design quick-fixes taken from:
 	Readable Theme from http://bootswatch.com/
 	
 -->	
-	<title><?=$data['heading']?></title>
+	<title><?=$heading?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<!-- Latest compiled and minified CSS -->
@@ -61,22 +61,22 @@ h1, h2, h3 {
 <?php
 echo "<div class=\"container\">\n";
 
-if ($data['sc'] == 'admin.php') {
-	echo "<h1><a href=\"{$data['sc']}\">{$data['heading']}</a></h1>\n";
+if ($admin) {
+	echo "<h1><a href=\"{$sc}\">{$heading}</a></h1>\n";
 } else {
 	echo "<div class=\"jumbotron page-header\">";
-	echo "<h1><a href=\"{$data['sc']}\">{$data['heading']}</a></h1>\n";	
+	echo "<h1><a href=\"{$sc}\">{$heading}</a></h1>\n";	
 	echo "<p>Greetings. This is a list of improv practices being taught or at least organized by Will Hines.";
-	//echo (wbh_logged_in() ? '' : " Log in below, then you can enroll.");
+	echo ($u->logged_in() ? '' : " Log in below, then you can enroll.");
 	echo "</p>";	
 	echo "</div>\n";
 }
 
-if (isset($data['error']) && $data['error']) {
-	echo "<div class='alert alert-danger'>{$data['error']}</div>\n";
+if (isset($error) && $error) {
+	echo "<div class='alert alert-danger'>{$error}</div>\n";
 }
-if (isset($data['message']) && $data['message']) {
-	echo "<div class='alert alert-success'>{$data['message']}</div>\n";
+if (isset($message) && $message) {
+	echo "<div class='alert alert-success'>{$message}</div>\n";
 }
 
 ?>		
