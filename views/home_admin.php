@@ -9,6 +9,6 @@
 <a name='add'></a><div class='row'><div class='col-md-5'><form action='$sc' method='post'>
 <fieldset name=\"session_add\"><legend>Add Session</legend>
 <?php 
-echo $wk->get_workshop_form()->get_form(); 
+echo $wk->get_workshop_form(true)->get_form(); 
 ?>		
 </fieldset></form></div></div>

@@ -29,37 +29,23 @@ class StatusChangeLog extends Model {
 
 	function get_status_change_log(Workshop $wk = null) {
 
-		$sc = $_SERVER['SCRIPT_NAME'];
-		
 		$sql = "select s.*, u.email, st.status_name, wk.title, wk.start, wk.end from status_change_log s, users u, statuses st, workshops wk where";
 		if ($wk) { 
-			$sql .= " workshop_id = ".$this->mres($wk->cols['id'])." and "; 
+			$sql .= " workshop_id = ".$this->mres($wk->getCol('id'))." and "; 
 		}
 		$sql .= " s.workshop_id = wk.id and s.user_id = u.id and s.status_id = st.id order by happened desc";
 
 		$rows = $this->query($sql) or $this->db_error();
 
-		$log = '';
-		$wkname = '';
+		$changes = array();
 		while ($row = mysqli_fetch_assoc($rows)) {
-			
-			if (!$wk) {
-				$tempwk = new Workshop(); // empty workshop object, use this ($tempwk) for data
-				$tempwk->cols = $row; // this will include workshop columns and extra columns
-				$tempwk->format_workshop_startend(); // this will format the columns we need
-				$wkname = "<a href='$sc?v=ed&wid={$tempwk->cols['workshop_id']}'>{$tempwk->cols['title']}</a><br><small>{$tempwk->cols['showstart']}</small></td><td>";
-			}
-			
-			// user query ($row) for data
-			$log .= "<tr><td>{$row['email']}</td><td>$wkname{$row['status_name']}</td><td><small>".date('j-M-y g:ia', strtotime($row['happened']))."</small></td></tr>\n";
-			
+			$tempwk = new Workshop(); // empty workshop object, use this ($tempwk) for data
+			$tempwk->cols = $row; // this will include workshop columns and extra columns
+			$tempwk->format_workshop_startend(); // this will format the columns we need without calling db
+			$changes[$row['id']]  = array_merge($tempwk->cols, $row); // should have status change log info plus formatted workshop info
 		}
-		if (!$log) {
-			$log = 'No recorded updates.';
-		} else {
-			$log = "<table class='table'>$log</table>\n";
-		}
-		return $log;
+		return $changes;
+			
 	}	
 
 	public function change_user_id($old_id, $new_id) {

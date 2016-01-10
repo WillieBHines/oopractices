@@ -31,7 +31,7 @@ echo "<table class='table table-striped'><thead><tr>
 		<td>".number_format($row['open'], 0)." of ".number_format($row['capacity'], 0).",<br> ".number_format($row['waiting']+$row['invited'])." waiting</td>
 ";
 		if ($admin) {
-			echo "<td><a href=\"$sc?wid={$row['id']}\">Clone</a></td></tr>\n";
+			echo "<td><a href=\"$sc?wid={$row['id']}#add\">Clone</a></td></tr>\n";
 		} else {
 			$call = ($row['type'] == 'soldout' ? 'Join Wait List' : 'Enroll');
 			echo "<td><a href=\"{$sc}?wid={$row['id']}&ac=enroll\">{$call}</a></td></tr>\n";

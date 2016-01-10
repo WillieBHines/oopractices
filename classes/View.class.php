@@ -7,13 +7,9 @@ class View extends WBHObject
 	private $header = 'header';
 	private $footer = 'footer';
 	private $snippetDir = 'views';
-	private $common_vars_page = 'common_variables'; // declaring common variables that most templates will need
 
 	public function renderPage($page = null, $data = null) {
-		if ($data) {
-			$this->data = array_merge($this->data, $data); // take the data that's passed in
-		}
-		$data = $this->updateData(); // add some things to it
+		$data = $this->updateData($data); // add some things to it
 	    if (is_array($data) && !empty($data)) {
 	        extract($data);
 	    }
@@ -25,6 +21,7 @@ class View extends WBHObject
 
 			
 	public function renderSnippet($bargle, $data=null) {
+		$data = $this->updateData($data); // add some things to it
 	    if (is_array($data) && !empty($data)) {
 	        extract($data);
 	    }
@@ -34,10 +31,7 @@ class View extends WBHObject
 	}
 	
 	public function renderHTML($html, $data = null) {
-		if ($data) {
-			$this->data = array_merge($this->data, $data); // take the data that's passed in
-		}
-		$data = $this->updateData(); // add some things to it
+		$data = $this->updateData($data); // add some things to it
 	    if (is_array($data) && !empty($data)) {
 	        extract($data);
 	    }
@@ -52,7 +46,10 @@ class View extends WBHObject
 	}
 	
 	// just add to data
-	public function updateData() {
+	public function updateData($data = null) {
+		if ($data) {
+			$this->data = array_merge($this->data, $data); // take the data that's passed in
+		}
 		$this->data['sc'] = $_SERVER['SCRIPT_NAME'];
 		$this->data['path'] = $this->snippetDir.'/';
 	    return $this->data;

@@ -82,9 +82,36 @@ class Registration extends Model {
 			return $this;
 		}
 		$this->setError('no one found to invite');
-		return $this;
+		return false;
 		
 	}
+	
+	// returns a three-deep array
+	// first level id = status id
+	// second level:  id = user id 
+	// third level: array of values from the db for that user id
+	public function get_all_students(Workshop $wk) {
+		$students = array();
+		foreach ($this->statuses as $stid => $stname) {
+			$students[$stid] = $this->get_students_by_status($wk, $stid);
+		}
+		return $students;
+	}
+	
+	// returns a two-deep array
+	// first level: user id
+	// second level an array of the db row for that id
+	public function get_students_by_status(Workshop $wk, $status_id = ENROLLED) {
+		$sql = "select u.*, r.status_id,  r.attended, r.registered, r.last_modified  from registrations r, users u where r.workshop_id = ".$this->mres($wk->getCol('id'));
+		if ($status_id) { $sql .= " and status_id = '".$this->mres($status_id)."'"; }
+		$sql .= " and r.user_id = u.id order by status_id, last_modified";
+		$rows = $this->query( $sql) or $this->db_error();
+		$stds = array();
+		while ($row = mysqli_fetch_assoc($rows)) {
+			$stds[$row['id']] = $row;
+		}
+		return $stds;
+	}	
 	
 	/*
 	* methods for dealing with a user's registrations

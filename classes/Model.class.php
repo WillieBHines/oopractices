@@ -7,7 +7,7 @@
 class Model extends WBHObject {
 
 	protected $db; // db connection	
-	public $cols; // an array of columns for the row/object: id, name, timestamp, etc
+	public $cols = array(); // an array of columns for the row/object: id, name, timestamp, etc
 	protected $table_name = null;
 	protected $valueCol = null;
 	protected $nameCol = null;
@@ -125,8 +125,10 @@ class Model extends WBHObject {
 		return $fields;
 	}
 	
-	private function merge_into_cols($params) {
-		$this->cols = array_merge($this->cols, $params);
+	private function merge_into_cols($params = null) {
+		if (is_array($params)) {
+			$this->cols = array_merge($this->cols, $params);
+		}
 	}
 
 	protected function mysql_now_string() {

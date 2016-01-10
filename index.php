@@ -1,8 +1,7 @@
 <?php
 include 'common.php';	
 
-if (isset($flow->params['wid']) && $flow->params['wid']) {
-	$wk = new Workshop($flow->params['wid']);
+if ($wk->getCol('id')) {
 	$flow->params['v'] = 'view';
 }
 
@@ -10,12 +9,12 @@ switch ($flow->params['ac']) {
 	
 	case 'lo':
 		$u->log_out();
-		$v->setFeedback($u->message, $u->error);
+		$v->set_feedback($u->message, $u->error);
 		break;
 	
 	case 'textup':
 		$u->save( $u->get_text_preferences_form()->get_values() );
-		$v->setFeedback($u->message, $u->error);
+		$v->set_feedback($u->message, $u->error);
 		$flow->params['v'] = 'text';
 		break;
 		
@@ -68,7 +67,7 @@ switch ($flow->params['v']) {
 	
 	case 'view':
 		$r->set_registration($wk, $u);
-		$template = 'view_workshop';
+		$template = 'workshop_view';
 		break;
 		
 	case 'text':

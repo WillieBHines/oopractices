@@ -30,11 +30,12 @@ class Form extends WBHObject {
 		return $this->params;
 	}
 	
-	private function check_value($id, $default = null, $validation = null) {
+	private function check_value($id, $default = null, $validation = null, $ignore_request = null) {
 	
 		$this->element_error = null; // clear out errors
 		
-		$value = isset($_REQUEST[$id]) ? $_REQUEST[$id] : $default;
+		$value = isset($_REQUEST[$id]) && !$ignore_request ? $_REQUEST[$id] : $default;
+		
 		$this->params[$id] = $value; // for a model to save
 		
 		if ($value && $validation == 'email') {
@@ -92,9 +93,7 @@ class Form extends WBHObject {
 	}
  
 	function hidden($id, $value = '', $ignore_request = true) {
-		if (!$ignore_request) {
-			$value = $this->check_value($id, $value);
-		}
+		$value = $this->check_value($id, $value, null, $ignore_request);
 		$this->add_to_output("<input type='hidden' name='$id' value='$value'>\n");
 		return $this;
 	}
@@ -148,7 +147,7 @@ class Form extends WBHObject {
 
 
 	function radio($name, $opts, $selection = null, $help = null) {
-		$value = $this->check_value($id, $selected);
+		$value = $this->check_value($name, $selection);
 		$i = 1;
 		$this->add_to_output("<div class='radio-inline'>");
 		foreach ($opts as $id => $label) {

@@ -1,6 +1,9 @@
 <?php
 class Workshop extends Model {
 		
+		
+	protected $table_name = 'workshops';
+		
 	function __construct($id = null) {
 		parent::__construct(); // set DB
 		if ($id) {
@@ -106,33 +109,10 @@ class Workshop extends Model {
 			 return false;
 		 }
 	}
-
-	/*
-	* methods to update data in the workshop
-	*/
-	public function get_workshop_form() {
-		
-		$l = new Locations();
-		$f = new Form();
-		$f->text('title', $this->getCol('title'));
-		$f->drop('location_id', $l->get_locations_dropdown(), $this->getCol('location_id'));
-		$f->text('start', $this->getCol('start'));
-		$f->text('end', $this->getCol('end'));
-		$f->text('cost', $this->getCol('cost'));
-		$f->text('capacity', $this->getCol('capacity'));
-		$f->textarea('notes', $this->getCol('notes'));
-		$f->text('when_public', $this->getCol('when_public'), 'When Public');
-		$f->hidden('id', $this->getCol('id'));
-		if ($this->getCol('id')) {
-			$f->hidden('ac', 'ed');
-			$f->submit('update workshop');
-		} else {
-			$f->hidden('ac', 'ad');
-			$f->submit('add workshop');
-		}
-		return $f;
-	}
 	
+	/*
+	* methods dealing with the students signed up for this workshop
+	*/
 	public function check_waiting() {		
 		if ($this->cols['type'] == 'past') {
 			return 'Workshop is in the past';
@@ -155,6 +135,44 @@ class Workshop extends Model {
 	}
 	
 	
+	
+	/*
+	* methods to update data in the workshop
+	*/
+	public function get_workshop_form($add = false) {
+		
+		$l = new Locations();
+		$f = new Form();
+		$f->text('title', $this->getCol('title'));
+		$f->drop('location_id', $l->get_locations_dropdown(), $this->getCol('location_id'), 'Location');
+		$f->text('start', $this->getCol('start'));
+		$f->text('end', $this->getCol('end'));
+		$f->text('cost', $this->getCol('cost'));
+		$f->text('capacity', $this->getCol('capacity'));
+		$f->textarea('notes', $this->getCol('notes'));
+		$f->text('when_public', $this->getCol('when_public'), 'When Public');
+		$f->hidden('id', $this->getCol('id'), null, false);
+		if ($add) {
+			$f->hidden('ac', 'add');
+			$f->submit('add workshop');
+		} else {
+			$f->hidden('ac', 'edit');
+			$f->submit('update workshop');
+		}
+		return $f;
+	}	
+	
+	public function add_student_form() {
+		$f = new Form();
+		$f->hidden('ac', 'enroll');
+		$f->text('email', '', 0);
+		$f->radio('con', array('1' => 'confirm', '0' => 'don\'t'), '0');
+		$f->hidden('wid', $this->getCol('id'));
+		$f->submit('Enroll');
+		return $f;
+	}
+	
+	
 	public function get_workshops_list($admin = false) {
 		
 		$rows_to_show = null;
@@ -166,11 +184,12 @@ class Workshop extends Model {
 		$i = 0;
 
 		while($row = mysqli_fetch_assoc($rows)) {
+			$this->setById($row['id']);
 
 			if (strtotime($row['start']) < time() && !$admin) { continue; }
 			if (strtotime($row['when_public']) > time() && !$admin) { continue; }
 		
-			$rows_to_show[] = $row;
+			$rows_to_show[] = $this->cols;
 		}
 		return $rows_to_show;
 	}
