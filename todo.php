@@ -3,17 +3,10 @@
 	
 /*
 
-
-
-*common.php
-*--autoload function
-*--get Flow.php and parse stuff
-*--get security.php
-
-rewrite URLS to be controller/method/param1/param2
-controller directory
-index should become a router, replace Flow object
---finds the controller, method
++rewrite URLS to be controller/method/param1/param2 (too hard!)
++controller directory
+--index should become a router, replace Flow object
+--finds the controller, method, params
 
 controllers should pick templates and views
 --all controllers have view object?

@@ -1,32 +1,15 @@
 <?php
 session_start(); // store key in $_SESSION
 
-
-
 // autoload classes
-
 spl_autoload_register(function ($className) {
 
-    # Usually I would just concatenate directly to $file variable below
-    # this is just for easy viewing on Stack Overflow)
-        $ds = DIRECTORY_SEPARATOR;
-        $dir = __DIR__;
-
-    // replace namespace separator with directory separator (prolly not required)
-        $className = str_replace('\\', $ds, $className);
-
-    // get full name of file containing the required class
-        $file = "{$dir}{$ds}{$className}.class.php";
+        $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
+        $file = __DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."{$className}.class.php";
 		//echo "$file\n";
 		//die;
-
-    // get file if it is readable
         if (is_readable($file)) require_once $file;
 });
-
-
-//spl_autoload_extensions(".class.php"); // comma-separated list
-//spl_autoload_register();
 
 // constants
 $statuses = new Classes\Models\Statuses();
@@ -37,9 +20,11 @@ define('INVITED', $statuses->find_status_id('invited'));
 define('LATE_HOURS', 12);
 define('DEBUG_MODE', false);
 define('URL', "http://{$_SERVER['HTTP_HOST']}/oopractices/");
+define('BASEDIR', __DIR__);
 define('WEBMASTER', "will@willhines.net");
 
 
+include 'router.php';
 
 // page content and flow
 $v = new Classes\View(); // used to render templates	

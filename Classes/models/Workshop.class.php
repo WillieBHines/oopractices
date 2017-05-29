@@ -1,7 +1,7 @@
 <?php
 namespace Classes\Models;
-use \Classes\Model\Registration as Registration;
-use \Classes\Model\Locations as Location;
+use \Classes\Models\Registration as Registration;
+use \Classes\Models\Locations as Location;
 use \Classes\Form as Form;
 
 
