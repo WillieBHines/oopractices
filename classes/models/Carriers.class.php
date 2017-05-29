@@ -1,4 +1,5 @@
 <?
+namespace Classes\Models;
 /*
 * most classes get one instance per row
 * this class gets the whole table since it's just a lookup table
