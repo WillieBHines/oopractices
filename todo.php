@@ -5,14 +5,22 @@
 
 
 
-index.php
+*common.php
+*--autoload function
+*--get Flow.php and parse stuff
+*--get security.php
 
+rewrite URLS to be controller/method/param1/param2
+controller directory
+index should become a router, replace Flow object
+--finds the controller, method
 
-common.php
---autoload function
---get Flow.php and parse stuff
---get security.php
+controllers should pick templates and views
+--all controllers have view object?
+--controllers invoke objects in their construct
+--admin controller checks for password? or is that by method?
 
+CONTROLLERS:
 user.php
 registration.php
 workshop.php
@@ -29,14 +37,11 @@ Model.php
 Controller.php
 
 View.php
-  get a snippet
-  get the page, put a header and footer on it
-  set the heading?
+  *get a snippet
+  *get the page, put a header and footer on it
+  *set the heading?
 
-Form.php
-Element.php
---all the form elements.php
-
+*Form.php
 
 same query string structure
 ?ac=&v=
