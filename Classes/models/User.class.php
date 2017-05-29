@@ -2,6 +2,7 @@
 namespace Classes\Models;
 use \Classes\Key as Key;
 use \Classes\Form as Form;
+use \Classes\Carriers as Carriers;
 use \Classes\Model as Model;
 
 class User extends Model {
@@ -24,7 +25,7 @@ class User extends Model {
 		} elseif ($email) {
 			$this->setByEmail($email);
 		} else {
-			$this->key = new Key(); // this will set a key from our argument (if it has a value), or REQUEST or SESSION, in that order
+			$this->key = new Key(); // nothing passed in, check for key from our argument (if it has a value), or REQUEST or SESSION or COOKIE, in that order
 			$this->setByKey($this->key);
 		}
 	}
@@ -55,7 +56,7 @@ class User extends Model {
 		}
 		return false;
 	}
-		
+				
 	public function setByKey(Key $key) {
 		$sql = "select u.* from users u where u.ukey = '".$this->mres($key->keycode)."'";
 		$rows = $this->query( $sql) or $this->db_error();
@@ -117,7 +118,7 @@ class User extends Model {
 				return false;
 			}
 			$v = new View();
-			$link = URL."index.php?key=$ukey";
+			$link = URL."users/key/$ukey";
 			$body = 
 "You are: {$this->getCol('email')}
 Use this link to log in:

@@ -7,13 +7,13 @@ class Key extends WBHObject {
 	public $keycode = null;
 	
 	function __construct($keycode = null) {
-		if ($keycode) {
+		if ($keycode) { // if key is passed in as an argument, set it everywhere
 			$this->keycode = $_SESSION['s_key'] = $keycode;
-		} elseif (isset($_REQUEST['key']) && $_REQUEST['key']) {
+		} elseif (isset($_REQUEST['key']) && $_REQUEST['key']) { // if key is passed in via url
 			$_SESSION['s_key'] = $this->keycode = $_REQUEST['key'];
-		} elseif (isset($_SESSION['s_key']) and $_SESSION['s_key']) {
+		} elseif (isset($_SESSION['s_key']) and $_SESSION['s_key']) { // if key is in session var
 			$this->keycode = $_SESSION['s_key'];
-		} elseif (isset($_COOKIE['c_key'])) {
+		} elseif (isset($_COOKIE['c_key'])) { // if key is in cookie
 			$this->keycode = $_SESSION['s_key'] = $_COOKIE['c_key'];
 		}
 		

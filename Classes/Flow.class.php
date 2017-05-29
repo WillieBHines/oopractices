@@ -9,15 +9,22 @@ class Flow extends WBHOBject {
 	public $method; // which method to call
 	
 	function __construct($vars = null) {
-		$this->params = $this->parse_incoming_url();
-		if ($vars) {
-			$this->setWhiteList($vars);
-		}
+		
+		//default controller/method, if nothing was called
+		$this->controller = 'Workshops';
+		$this->method = 'index';
+		
+		$this->params = $this->parse_incoming_url(); // check what controller/method was called
+		if ($vars) { $this->setWhiteList($vars); } // old method, trying to get rid of
+		
+		//set up user
+		$this->user = new Models\User();
+		
 	}
 	
 	
 	//parse incoming URL into stuff, expecting "controller/method/param1/param2"
-	function parse_incoming_url() {
+	private function parse_incoming_url() {
 	  $params = array();
 	  if (isset($_SERVER['REQUEST_URI'])) {
 	    $request_path = explode('?', $_SERVER['REQUEST_URI']);
@@ -37,21 +44,28 @@ class Flow extends WBHOBject {
 	  //echo '<pre>'.print_r($params, true).'</pre>';
 	  
 	  // check for controller
-	  $looking_for = 'Classes\Controllers\\'.ucfirst($params['call_parts'][0]);
-	  if (isset($params['call_parts'][0]) && class_exists($looking_for)) {
-			$this->controller = $params['call_parts'][0];
+	  $controller = 'Classes\Controllers\\'.ucfirst($params['call_parts'][0]);
+	  if (isset($params['call_parts'][0]) && class_exists($controller)) {
+			  $this->controller = $controller;
 
 			  // check for method
-
-	  } else {
-		 // couldn't find controller
-	  }
-	  
-	  
+			  $method = $params['call_parts'][0];
+			  if (isset($method) && method_exists($controller, $method)) {
+				  $this->method = $method;
+			  }
+			  
+	  } 
 	  
 	  $this->params = $params;
 	  return $params;
 	}
+		
+		
+	public function proceed() {
+	  $c = new $this->controller;
+	  $c->{$this->method}($this->params['query']);
+	}	
+		
 		
 	public function setWhiteList($whiteList) {
 		if (is_array($whiteList)) {
