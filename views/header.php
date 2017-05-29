@@ -20,7 +20,7 @@ design quick-fixes taken from:
 
 	<!-- Optional theme -->
 	<!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css"-->
-	<link rel="stylesheet" href="bootstrap.readable.min.css">
+	<link rel="stylesheet" href="<?=ASSETS?>bootstrap.readable.min.css">
 
 
 	<!-- Latest compiled and minified JavaScript -->
@@ -28,11 +28,11 @@ design quick-fixes taken from:
 	
 	<!-- jquery -->
 	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-	<script src="backstretch.js"></script>
+	<script src="<?=ASSETS?>backstretch.js"></script>
 
 <script>
 	$( document ).ready(function() {
-	    $.backstretch("bb4.jpg");
+	    $.backstretch("<?=ASSETS?>bb4.jpg");
 	});
 </script>
 	
@@ -43,7 +43,7 @@ design quick-fixes taken from:
 }
 
 .container {	
-	background: url(cream_dust_transparent.png) repeat 0;
+	background: url(<?=ASSETS?>cream_dust_transparent.png) repeat 0;
 }
 
 h1, h2, h3 { 

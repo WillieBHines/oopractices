@@ -20,7 +20,7 @@ define('INVITED', $statuses->find_status_id('invited'));
 define('LATE_HOURS', 12);
 define('DEBUG_MODE', false);
 define('URL', "http://{$_SERVER['HTTP_HOST']}/oopractices/");
-define('BASEDIR', __DIR__);
+define('ASSETS', "/oopractices/assets/"); // css, js files, images
 define('WEBMASTER', "will@willhines.net");
 
 

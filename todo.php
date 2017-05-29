@@ -3,15 +3,19 @@
 	
 /*
 
-+rewrite URLS to be controller/method/param1/param2 (too hard!)
++rewrite URLS to be controller/method/param1/param2 
 +controller directory
---index should become a router, replace Flow object
+
+--index should include a router file, replace Flow object
 --finds the controller, method, params
+--routes defaults to "workshops/index"
+
 
 controllers should pick templates and views
 --all controllers have view object?
 --controllers invoke objects in their construct
 --admin controller checks for password? or is that by method?
+--have bootstrap figure out assets directory?
 
 CONTROLLERS:
 user.php

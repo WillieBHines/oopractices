@@ -1,9 +1,6 @@
 <?php
 include 'core/bootstrap.php';
 
-echo BASEDIR;
-die;
-
 if ($wk->getCol('id')) {
 	$flow->params['v'] = 'view';
 }
