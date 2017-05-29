@@ -1,5 +1,7 @@
 <?php
-class StatusChangeLog extends Model {
+namespace Classes\Models;
+
+class StatusChangeLog extends \Classes\Model {
 	
 	private $workshop;
 	private $user;

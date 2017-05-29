@@ -1,4 +1,6 @@
 <?php
+namespace Classes;
+
 /*
 * these routines are sort of logically part of 
 * registration management and user management

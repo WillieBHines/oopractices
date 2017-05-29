@@ -1,4 +1,5 @@
 <?php 
+namespace Classes;
 /*
 * almost every class corresponds to a table
 * this class makes sure they all have basic database methods (query, getting an error, escaping data)

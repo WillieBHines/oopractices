@@ -5,7 +5,7 @@ namespace Classes\Models;
 * this class gets the whole table since it's just a lookup table
 * stores the data in a static property (essentially global)
 */
-class Carriers extends Model {
+class Carriers extends \Classes\Model {
 	
 	protected $table_name = 'carriers';
 	public static $carriers;

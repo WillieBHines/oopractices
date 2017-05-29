@@ -1,4 +1,6 @@
 <?php
+namespace Classes;
+
 /*
 * simple feel-good, not actually that secure security
 *

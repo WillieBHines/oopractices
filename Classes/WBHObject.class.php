@@ -1,4 +1,5 @@
 <?php
+namespace Classes;
 /*
 * this is just so every object has an error and a message property
 */

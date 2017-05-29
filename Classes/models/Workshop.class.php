@@ -1,5 +1,11 @@
 <?php
-class Workshop extends Model {
+namespace Classes\Models;
+use \Classes\Model\Registration as Registration;
+use \Classes\Model\Locations as Location;
+use \Classes\Form as Form;
+
+
+class Workshop extends \Classes\Model {
 		
 		
 	protected $table_name = 'workshops';

@@ -1,5 +1,7 @@
 <?
-class Registration extends Model {
+namespace Classes\Models;
+
+class Registration extends \Classes\Model {
 	
 	private $statuses;
 	private $workshop;

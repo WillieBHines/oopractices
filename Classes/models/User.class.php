@@ -1,4 +1,9 @@
 <?
+namespace Classes\Models;
+use \Classes\Key as Key;
+use \Classes\Form as Form;
+use \Classes\Model as Model;
+
 class User extends Model {
 	
 	public $key;

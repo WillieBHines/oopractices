@@ -1,5 +1,5 @@
 <?php
-	
+namespace Classes;	
 class Flow extends WBHOBject {
 	
 	public $whiteList;

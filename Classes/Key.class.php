@@ -1,4 +1,6 @@
 <?php
+namespace Classes;
+
 class Key extends WBHObject {
 
 	protected $db;

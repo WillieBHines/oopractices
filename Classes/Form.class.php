@@ -1,4 +1,6 @@
 <?php
+namespace Classes;
+
 class Form extends WBHObject {
 
 	public $output;

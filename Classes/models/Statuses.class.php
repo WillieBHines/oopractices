@@ -5,7 +5,7 @@ namespace Classes\Models;
 * this class gets the whole table since it's just a lookup table
 * stores the data in a static property (essentially global)
 */
-class Statuses extends Classes\Model {
+class Statuses extends \Classes\Model {
 	
 	protected $table_name = 'statuses';
 	protected $valueCol = 'id';
