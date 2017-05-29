@@ -1,7 +1,7 @@
 <?php
 session_start(); // store key in $_SESSION
 
-// autoload classes
+// set function for autoloading classes
 spl_autoload_register(function ($className) {
 
         $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
@@ -11,7 +11,7 @@ spl_autoload_register(function ($className) {
         if (is_readable($file)) require_once $file;
 });
 
-// constants
+// set constants
 $statuses = new Classes\Models\Statuses();
 define('ENROLLED', $statuses->find_status_id('enrolled'));
 define('WAITING', $statuses->find_status_id('waiting'));
@@ -23,12 +23,10 @@ define('URL', "http://{$_SERVER['HTTP_HOST']}/oopractices/");
 define('ASSETS', "/oopractices/assets/"); // css, js files, images
 define('WEBMASTER', "will@willhines.net");
 
-
-include 'router.php';
-
 // page content and flow
 $v = new Classes\View(); // used to render templates	
 $flow = new Classes\Flow(array('ac', 'wid', 'uid', 'v')); // deals with parameters, urls
+print_r($flow);
 $template = ''; // what template to load
 $data = ''; // data for the template
 
