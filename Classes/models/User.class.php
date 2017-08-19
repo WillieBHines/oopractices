@@ -17,16 +17,16 @@ class User extends Model {
 		// if not that, tries to make key from: $_REQUEST, then $_SESSION, then $_COOKIE (all logged in)
 	function __construct($uid = null, $keycode = null, $email = null) {
 		parent::__construct(); // sets DB object
-		if ($keycode) { // did we get a key, then ignore user id
+		if ($keycode) { // did we get a key, then ignore user id, mark as logged in
 			$this->key = new Key($keycode);
 			$this->setByKey($this->key);
 		} elseif ($uid) { // no key, do we have a user id?
-			$this->setById($uid);
+			$this->setById($uid); // get info, but not logged in 
 		} elseif ($email) {
-			$this->setByEmail($email);
+			$this->setByEmail($email); // get info, but not logged in 
 		} else {
-			$this->key = new Key(); // nothing passed in, check for key from our argument (if it has a value), or REQUEST or SESSION or COOKIE, in that order
-			$this->setByKey($this->key);
+			$this->key = new Key(); // nothing passed in, check for key from REQUEST or SESSION or COOKIE, in that order
+			$this->setByKey($this->key); // set user, mark as logged in
 		}
 	}
 	
@@ -81,7 +81,10 @@ class User extends Model {
 	}
 	
 		
-	public function make_new_user($email) {
+	public function logIn() {
+		
+		$email = $_POST['email']; // need sanitize function
+		
 		$f = new Form();
 		if ($f->validate_email($email)) {
 			if ($this->setByEmail($email)) {

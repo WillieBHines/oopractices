@@ -10,8 +10,8 @@ class Model extends WBHObject {
 	protected $db; // db connection	
 	public $cols = array(); // an array of columns for the row/object: id, name, timestamp, etc
 	protected $table_name = null;
-	protected $valueCol = null;
-	protected $nameCol = null;
+	protected $valueCol = 'id';
+	protected $nameCol = 'title';
 
 
 	function __construct() {

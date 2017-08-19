@@ -12,15 +12,18 @@ class Form extends WBHObject {
 		$this->output = null;
 	}
 	
-	public function get_form($option = null) {
+	public function get_form($action = null, $option = null) {
+		
+		
 		$this->hidden($this->submitted_id, '1');	// so we can know if form was submitted	
+		$action = ($action ?  $action : $_SERVER['SCRIPT_NAME']);
 		$xtra_class = ($option == 'inline') ? 'form-inline' : '';
 
 		$body = '';
 		if ($this->is_submitted() && $this->error) { // form was submitted we can check for errors
 			$body .= "<div class='alert alert-danger'>{$this->error}</div>\n";
 		}
-		$body .= "<form class='$xtra_class' action='{$_SERVER['SCRIPT_NAME']}' method='post'>\n";
+		$body .= "<form class='$xtra_class' action='{$action}' method='post'>\n";
 		$body .= $this->output;
 		$body .= "</form>\n";
 		

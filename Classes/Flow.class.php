@@ -11,17 +11,21 @@ class Flow extends WBHOBject {
 	function __construct($vars = null) {
 		
 		//default controller/method, if nothing was called
-		$this->controller = 'Workshops';
+		$this->controller = '\Classes\Controllers\Workshops';
 		$this->method = 'index';
 		
 		$this->params = $this->parse_incoming_url(); // check what controller/method was called
 		if ($vars) { $this->setWhiteList($vars); } // old method, trying to get rid of
 		
 		//set up user
+		
+		
+		
 		$this->user = new Models\User();
+	
+		//print_r($this->params);
 		
 	}
-	
 	
 	//parse incoming URL into stuff, expecting "controller/method/param1/param2"
 	private function parse_incoming_url() {
@@ -43,27 +47,38 @@ class Flow extends WBHOBject {
 	  }
 	  //echo '<pre>'.print_r($params, true).'</pre>';
 	  
-	  // check for controller
-	  $controller = 'Classes\Controllers\\'.ucfirst($params['call_parts'][0]);
-	  if (isset($params['call_parts'][0]) && class_exists($controller)) {
-			  $this->controller = $controller;
+	  // set first param as controller if that controller exists
+  	  $controller = '\Classes\Controllers\\'.ucfirst($this->params['call_parts'][0]);
+  	  if (isset($this->params['call_parts'][0]) && class_exists($controller)) {
+  			  $this->controller = $controller;
 
-			  // check for method
-			  $method = $params['call_parts'][0];
-			  if (isset($method) && method_exists($controller, $method)) {
-				  $this->method = $method;
-			  }
-			  
-	  } 
+			  // set second param as method if that method exists
+  			  $method = $this->params['call_parts'][0];
+  			  if (isset($method) && method_exists($controller, $method)) {
+  				  $this->method = $method;
+  			  }
+			    	  	
+  	  }	  
 	  
 	  $this->params = $params;
 	  return $params;
 	}
 		
+	
+	// we assume the contructor set a default controller/method
+	// we assume parse_incoming_url set info from query string
+	// now we call the controller and method, along with the params	
+	public function proceed() {	
+			  
+	  if (isset($this->controller) && isset($this->method)) {
+		  $c = new $this->controller;
+		  $c->{$this->method}($this->params['query']);
+		  return true;
+	  }	  
+	  
+		$this->error = "No controller and method set, cannot proceed.";
+		return false;
 		
-	public function proceed() {
-	  $c = new $this->controller;
-	  $c->{$this->method}($this->params['query']);
 	}	
 		
 		

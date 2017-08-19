@@ -9,7 +9,7 @@ if ($u->logged_in()) {
 } else {
 	echo  "<h2>Log In</h2>\n";
 	echo  "<p>You are not logged in. To log in, you don't need a password or a Facebook account but you do need an email account.</p>";
-	echo  $u->get_login_form()->get_form('inline');
+	echo  $u->get_login_form()->get_form('User/logIn', 'inline');
 }
 	echo  "</div></div></div>\n"; // end of log in prompt div, and its column and row
 

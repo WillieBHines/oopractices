@@ -25,17 +25,18 @@ define('WEBMASTER', "will@willhines.net");
 // global objects
 // i know it's bad
 // but i can't think of a simple alternative
-$v = new Classes\View(); // used to render templates	
 $f = new Classes\Flow(array('ac', 'wid', 'uid', 'v')); // deals with parameters, urls
-$u = new Classes\Models\User();  // set up the user. this checks session, params, etc.
-$r = new Classes\Models\Registration();
+$u = $f->user;  // set up the user. this checks session, params, etc.
 
-/*
-$template = ''; // what template to load
-$data = ''; // data for the template
 
-// get three main data objects going
-$wk = new Classes\Models\Workshop ($f->params['wid']);
-$u = new Classes\Models\User(); 
-*/
+// WHERE I LEFT OFF
+
+// trying to work out how to log users in
+// creating a log in form
+// catching the submission of the log in form
+// dealing with responses to that
+// ugh
+
+
+
 ?>
